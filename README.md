@@ -1,4 +1,4 @@
-  ![摸鱼派cn.png](https://b3logfile.com/file/2023/05/摸鱼派-cn-owZQT8f.png)
+![摸鱼派cn.png](https://b3logfile.com/file/2023/05/摸鱼派-cn-owZQT8f.png)
 
 # fishpi-pyclient
 
@@ -10,11 +10,11 @@
 
 [版本列表](https://github.com/gakkiyomi/fishpi-pyclient/releases)
 
-### Windows系统
+### Windows 系统
 
 下载后，双击打开
 
-### MacOS系统
+### MacOS 系统
 
 下载后，执行如下命令
 
@@ -29,7 +29,7 @@
 然后需要在偏好设置这里,如下图:
 ![WechatIMG482.jpg](https://file.fishpi.cn/2023/12/WechatIMG482-3c599a0e.jpg)
 
-### pip安装
+### pip 安装
 
 环境: Python3.9 以上
 
@@ -55,6 +55,7 @@ python core.py
   - 一键切换
   - 更多功能请期待
 - 💬 聊天模式
+  - 💬 私聊
   - 💬 聊天吹水
   - 🌈 自定义字体颜色
   - 🤖️ 自动复读
@@ -85,8 +86,8 @@ python core.py
     - 🈲️ 小黑屋功能
       - 拒绝接收黑名单在聊天室发送的信息 (红包除外 😂 )
       - 将某人从小黑屋中放出
-    - 🈲️ 关键字屏蔽  
-    - 发红包🧧
+    - 🈲️ 关键字屏蔽
+    - 发红包 🧧
       - 拼手气红包
       - 普通红包
       - 专属红包

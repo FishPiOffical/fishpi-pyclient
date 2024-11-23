@@ -25,6 +25,7 @@ from .blacklist import (
     release_someone,
     remove_keyword_to_bl,
 )
+from .chat import Chat
 from .chatroom import ChatRoom
 from .user import render_online_users, render_user_info
 
@@ -106,7 +107,8 @@ class ArticleCommand(Command):
                     print("页数必须大于0")
                     return
                 if 0 <= article_index < len(api.article.articles_oid()):
-                    article = api.article.get_article(api.article.articles_oid(article_index))
+                    article = api.article.get_article(
+                        api.article.articles_oid(article_index))
                     article.get_content()
                     self.curr_article = article
                     api.article.format_comments_list(
@@ -116,7 +118,8 @@ class ArticleCommand(Command):
                 elif len(api.article.articles_oid()) < 1:
                     article_list = api.article.list_articles()
                     api.article.format_article_list(article_list)
-                    article = api.article.get_article(api.article.articles_oid(article_index))
+                    article = api.article.get_article(
+                        api.article.articles_oid(article_index))
                     article.get_content()
                     self.curr_article = article
                     api.article.format_comments_list(
@@ -132,7 +135,8 @@ class ArticleCommand(Command):
             comment_content = lt[1]
 
             try:
-                api.article.comment_article(self.curr_article.oId, comment_content)
+                api.article.comment_article(
+                    self.curr_article.oId, comment_content)
             except Exception:
                 print("选择需要评论的帖子")
 
@@ -312,6 +316,13 @@ class ChangeCurrentUserCommand(Command):
             api.sockpuppets[target_user_name].online(ChatRoom().start)
 
 
+class ChatCommand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        target_user_name = " ".join(args)
+        print(f'私聊通道建立中 {api.current_user} ===> {target_user_name} ...')
+        api.sockpuppets[api.current_user].chat(Chat(target_user_name).start)
+
+
 class PointTransferCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         res = re.fullmatch(TRANSFER_RE, ' '.join(args))
@@ -436,6 +447,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#help', help_c)
     cli_handler.add_command('#cli', EnterCil())
     cli_handler.add_command('#chatroom', EnterChatroom())
+    cli_handler.add_command('#chat', ChatCommand())
     cli_handler.add_command('#siguo', SiGuoYa())
     cli_handler.add_command('#article', ArticleCommand())
     cli_handler.add_command('#bm', BreezemoonsCommand())

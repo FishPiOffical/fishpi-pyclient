@@ -3,6 +3,7 @@ import json
 import ssl
 import threading
 from abc import ABC, abstractmethod
+from urllib.parse import urlencode
 
 import websocket
 
@@ -43,7 +44,13 @@ class WS(ABC):
 
 def aysnc_start_ws(ws: WS):
     websocket.enableTrace(False)
-    ws_instance = websocket.WebSocketApp(f"wss://{ws.ws_url}?apiKey={API.api_key}",
+    if hasattr(ws, 'params'):
+        query_string = urlencode(ws.params)
+        base_url = f"wss://{ws.ws_url}?apiKey={API.api_key}"
+        ws_url = f"{base_url}&{query_string}" if query_string else base_url
+    else:
+        ws_url = f"wss://{ws.ws_url}?apiKey={API.api_key}"
+    ws_instance = websocket.WebSocketApp(ws_url,
                                          on_open=ws.on_open,
                                          on_message=ws.on_message,
                                          on_error=ws.on_error,

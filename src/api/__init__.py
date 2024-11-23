@@ -42,6 +42,10 @@ class UserInfo(object):
             self.ws[key].stop()
         self.is_online = False
 
+    def chat(self, func) -> None:
+        self.offline()
+        func()
+
 
 class FishPi(Base):
     def __init__(self):
