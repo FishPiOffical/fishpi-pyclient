@@ -24,5 +24,14 @@ class Chat(WS):
         self.instance.send(msg)
 
 
-def render(api, msg: str):
-    print(msg)
+def render(api, message: dict):
+    time = message["time"]
+    sender_name = message["senderUserName"]
+    if sender_name == api.current_user:
+        print(f"\t\t\t\t\t\t[{time}]")
+        print(f'\t\t\t\t\t\t你说: {message["markdown"]}')
+    else:
+        print(f"[{time}]")
+        print(f"{sender_name}说:")
+        print(message['markdown'])
+        print("\r\n")

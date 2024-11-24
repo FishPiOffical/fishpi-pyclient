@@ -44,14 +44,19 @@ class HelpCommand(Command):
 class DefaultCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         curr_user = api.sockpuppets[api.current_user]
-        if curr_user.ws is not None:
+        if curr_user.is_online:
             if GLOBAL_CONFIG.chat_config.answer_mode:
                 api.chatroom.send(
                     f"鸽 {' '.join(args)}")
             else:
                 api.chatroom.send(' '.join(args))
         else:
-            print("请先进入聊天室")
+            # chat channel
+            if len(curr_user.ws) == 0:
+                print("当前为交互模式,无法发送信息")
+                print("请进入聊天室#chatroom或者开启私聊通道#chat username")
+                return
+            curr_user.ws[Chat.WS_URL].sender(' '.join(args))
 
 
 class EnterCil(Command):
@@ -60,19 +65,17 @@ class EnterCil(Command):
         if len(curr_user.ws) == 0:
             print("已在交互模式中")
         else:
-            keys = list(curr_user.ws.keys())
-            for key in keys:
-                curr_user.ws[key].stop()
+            curr_user.offline()
             print("进入交互模式")
 
 
 class EnterChatroom(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         curr_user = api.sockpuppets[api.current_user]
-        if ChatRoom.WS_URL in curr_user.ws:
-            curr_user.ws[ChatRoom.WS_URL].stop()
+        curr_user.offline()
         cr = ChatRoom()
         curr_user.ws[ChatRoom.WS_URL] = cr
+        curr_user.is_online = True
         cr.start()
 
 
