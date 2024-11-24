@@ -102,6 +102,8 @@ class LoginInitor(Initor):
                       GLOBAL_CONFIG.auth_config.password,
                       GLOBAL_CONFIG.auth_config.mfa_code)
             GLOBAL_CONFIG.auth_config.key = api.api_key
+            if env_login():
+                api.user_key_write_to_config_file()
         else:
             # 直接使用api-key
             username = api.user.get_username_by_key(
@@ -122,13 +124,14 @@ class LoginInitor(Initor):
                           GLOBAL_CONFIG.auth_config.password,
                           GLOBAL_CONFIG.auth_config.mfa_code)
                 GLOBAL_CONFIG.auth_config.key = api.api_key
+                if env_login():
+                    api.user_key_write_to_config_file()
         if len(GLOBAL_CONFIG.auth_config.accounts) != 0:
             api.sockpuppets = {account[0]: UserInfo(
                 account[0], account[1], '') for account in GLOBAL_CONFIG.auth_config.accounts}
         api.sockpuppets[api.current_user] = UserInfo(
             api.current_user, GLOBAL_CONFIG.auth_config.password, api.api_key)
         api.sockpuppets[api.current_user].is_online = True
-        api.user_key_write_to_config_file()
 
 
 class ChaRoomInitor(Initor):
@@ -143,6 +146,13 @@ class ChaRoomInitor(Initor):
 class CliInitor(Initor):
     def exec(self, api: FishPi, options: CliOptions) -> None:
         init_cli(api)
+
+
+def env_login() -> bool:
+    if os.environ.get('FISH_PI_KEY', '') != '':
+        return True
+    else:
+        return '' != os.environ.get('FISH_PI_USERNAME', '') and '' != os.environ.get('FISH_PI_PASSWORD', '')
 
 
 class InitChain(object):
