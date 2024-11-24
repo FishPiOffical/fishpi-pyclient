@@ -16,7 +16,7 @@ from src.api.config import (
     RedPacketConfig,
     init_defualt_config,
 )
-from src.utils import HOST
+from src.utils import HOST, cli_login
 
 from .chatroom import ChatRoom, init_soliloquize
 from .command import init_cli
@@ -102,7 +102,7 @@ class LoginInitor(Initor):
                       GLOBAL_CONFIG.auth_config.password,
                       GLOBAL_CONFIG.auth_config.mfa_code)
             GLOBAL_CONFIG.auth_config.key = api.api_key
-            if env_login():
+            if cli_login(GLOBAL_CONFIG.auth_config.username):
                 api.user_key_write_to_config_file()
         else:
             # 直接使用api-key
@@ -124,7 +124,7 @@ class LoginInitor(Initor):
                           GLOBAL_CONFIG.auth_config.password,
                           GLOBAL_CONFIG.auth_config.mfa_code)
                 GLOBAL_CONFIG.auth_config.key = api.api_key
-                if env_login():
+                if cli_login(GLOBAL_CONFIG.auth_config.username):
                     api.user_key_write_to_config_file()
         if len(GLOBAL_CONFIG.auth_config.accounts) != 0:
             api.sockpuppets = {account[0]: UserInfo(
@@ -146,13 +146,6 @@ class ChaRoomInitor(Initor):
 class CliInitor(Initor):
     def exec(self, api: FishPi, options: CliOptions) -> None:
         init_cli(api)
-
-
-def env_login() -> bool:
-    if os.environ.get('FISH_PI_KEY', '') != '':
-        return True
-    else:
-        return '' != os.environ.get('FISH_PI_USERNAME', '') and '' != os.environ.get('FISH_PI_PASSWORD', '')
 
 
 class InitChain(object):

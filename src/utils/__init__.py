@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import re
 
 HOST = 'https://fishpi.cn'
@@ -48,3 +49,8 @@ RP_RE = re.compile('(\d) (\d+)')
 RP_SEND_TO_CODE_RE = re.compile('(\d+) ([\w,]+)(?<!,)$')
 RP_TIME_CODE_RE = re.compile('(\d+)')
 TRANSFER_RE = re.compile('(\d+) (\w+)( \S+)?')
+
+
+def cli_login(cli_user: str) -> bool:
+    env_user = os.environ.get('FISH_PI_USERNAME', '')
+    return env_user != cli_user
