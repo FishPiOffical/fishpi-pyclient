@@ -2,6 +2,7 @@
 import os
 import re
 from abc import ABC, abstractmethod
+from functools import partial
 from typing import Tuple
 
 from objprint import op
@@ -27,7 +28,7 @@ from .blacklist import (
 )
 from .chat import Chat
 from .chatroom import ChatRoom
-from .user import render_online_users, render_user_info
+from .user import User, render_online_users, render_user_info
 
 
 class Command(ABC):
@@ -44,7 +45,7 @@ class HelpCommand(Command):
 class DefaultCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         curr_user = api.sockpuppets[api.current_user]
-        if curr_user.is_online:
+        if curr_user.in_chatroom:
             if GLOBAL_CONFIG.chat_config.answer_mode:
                 api.chatroom.send(
                     f"鸽 {' '.join(args)}")
@@ -52,7 +53,7 @@ class DefaultCommand(Command):
                 api.chatroom.send(' '.join(args))
         else:
             # chat channel
-            if len(curr_user.ws) == 0:
+            if len(curr_user.ws) == 0 or Chat.WS_URL not in curr_user.ws:
                 print("当前为交互模式,无法发送信息")
                 print("请进入聊天室#chatroom或者开启私聊通道#chat username")
                 return
@@ -65,17 +66,19 @@ class EnterCil(Command):
         if len(curr_user.ws) == 0:
             print("已在交互模式中")
         else:
-            curr_user.offline()
+            curr_user.out_chatroom()
+            curr_user.out_chat()
             print("进入交互模式")
 
 
 class EnterChatroom(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         curr_user = api.sockpuppets[api.current_user]
-        curr_user.offline()
+        curr_user.out_chatroom()
+        curr_user.out_chat()
         cr = ChatRoom()
         curr_user.ws[ChatRoom.WS_URL] = cr
-        curr_user.is_online = True
+        curr_user.in_chatroom = True
         cr.start()
 
 
@@ -303,7 +306,8 @@ class ChangeCurrentUserCommand(Command):
         print(f'账户切换 {api.current_user} ===> {target_user_name}')
         api.sockpuppets[api.current_user].offline()
         if target_user_name in api.sockpuppets:
-            api.sockpuppets[target_user_name].online(ChatRoom().start)
+            api.sockpuppets[target_user_name].online(
+                ChatRoom().start, partial(User().online, user=api.sockpuppets[target_user_name]))
         else:
             print('请输入密码:')
             api_key = ''
@@ -311,19 +315,21 @@ class ChangeCurrentUserCommand(Command):
                 password = input("")
                 api.login(target_user_name, password)
                 api_key = api.api_key
-            GLOBAL_CONFIG.auth_config.username = target_user_name
-            GLOBAL_CONFIG.auth_config.password = password
-            GLOBAL_CONFIG.auth_config.key = api_key
             api.sockpuppets[target_user_name] = UserInfo(
                 target_user_name, password, api_key)
-            api.sockpuppets[target_user_name].online(ChatRoom().start)
+            api.sockpuppets[target_user_name].online(
+                ChatRoom().start, partial(User().online, user=api.sockpuppets[target_user_name]))
 
 
 class ChatCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         target_user_name = " ".join(args)
-        print(f'私聊通道建立中 {api.current_user} ===> {target_user_name} ...')
-        api.sockpuppets[api.current_user].chat(Chat(target_user_name).start)
+        if '' == target_user_name:
+            api.chat.render_recent_chat_users()
+        else:
+            print(f'私聊通道建立中 {api.current_user} ===> {target_user_name} ...')
+            api.sockpuppets[api.current_user].chat(
+                Chat(target_user_name).start)
 
 
 class PointTransferCommand(Command):

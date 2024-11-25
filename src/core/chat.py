@@ -13,9 +13,12 @@ class Chat(WS):
 
     def on_open(self, ws):
         print(f"正在与{self.params['toUser']}私聊!")
+        [render(API, item)
+         for item in reversed(API.chat.get_msg(self.params['toUser']))]
 
     def on_error(self, ws, error):
-        super().on_error(ws, error)
+        print(f"私聊通道初始化失败, {self.params['toUser']}不存在!")
+        self.stop()
 
     def on_close(self, ws, close_status_code, close_msg):
         print('私聊结束')

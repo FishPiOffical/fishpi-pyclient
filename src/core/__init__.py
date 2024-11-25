@@ -20,6 +20,7 @@ from src.utils import HOST, cli_login
 
 from .chatroom import ChatRoom, init_soliloquize
 from .command import init_cli
+from .user import User
 
 
 class Initor(ABC):
@@ -131,7 +132,8 @@ class LoginInitor(Initor):
                 account[0], account[1], '') for account in GLOBAL_CONFIG.auth_config.accounts}
         api.sockpuppets[api.current_user] = UserInfo(
             api.current_user, GLOBAL_CONFIG.auth_config.password, api.api_key)
-        api.sockpuppets[api.current_user].is_online = True
+        api.sockpuppets[api.current_user].in_chatroom = True
+        User().online(api.sockpuppets[api.current_user])
 
 
 class ChaRoomInitor(Initor):
