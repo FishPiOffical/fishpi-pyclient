@@ -2,6 +2,7 @@
 import os
 import re
 from abc import ABC, abstractmethod
+from functools import partial
 from typing import Tuple
 
 from objprint import op
@@ -25,8 +26,10 @@ from .blacklist import (
     release_someone,
     remove_keyword_to_bl,
 )
+from .chat import Chat
 from .chatroom import ChatRoom
-from .user import render_online_users, render_user_info
+from .notification import put_keyword_to_nitification, remove_keyword_to_nitification
+from .user import User, render_online_users, render_user_info
 
 
 class Command(ABC):
@@ -43,14 +46,19 @@ class HelpCommand(Command):
 class DefaultCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         curr_user = api.sockpuppets[api.current_user]
-        if curr_user.ws is not None:
+        if curr_user.in_chatroom:
             if GLOBAL_CONFIG.chat_config.answer_mode:
                 api.chatroom.send(
                     f"鸽 {' '.join(args)}")
             else:
                 api.chatroom.send(' '.join(args))
         else:
-            print("请先进入聊天室")
+            # chat channel
+            if len(curr_user.ws) == 0 or Chat.WS_URL not in curr_user.ws:
+                print("当前为交互模式,无法发送信息")
+                print("请进入聊天室#chatroom或者开启私聊通道#chat username")
+                return
+            curr_user.ws[Chat.WS_URL].sender(' '.join(args))
 
 
 class EnterCil(Command):
@@ -59,19 +67,19 @@ class EnterCil(Command):
         if len(curr_user.ws) == 0:
             print("已在交互模式中")
         else:
-            keys = list(curr_user.ws.keys())
-            for key in keys:
-                curr_user.ws[key].stop()
+            curr_user.out_chatroom()
+            curr_user.out_chat()
             print("进入交互模式")
 
 
 class EnterChatroom(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         curr_user = api.sockpuppets[api.current_user]
-        if ChatRoom.WS_URL in curr_user.ws:
-            curr_user.ws[ChatRoom.WS_URL].stop()
+        curr_user.out_chatroom()
+        curr_user.out_chat()
         cr = ChatRoom()
         curr_user.ws[ChatRoom.WS_URL] = cr
+        curr_user.in_chatroom = True
         cr.start()
 
 
@@ -106,7 +114,8 @@ class ArticleCommand(Command):
                     print("页数必须大于0")
                     return
                 if 0 <= article_index < len(api.article.articles_oid()):
-                    article = api.article.get_article(api.article.articles_oid(article_index))
+                    article = api.article.get_article(
+                        api.article.articles_oid(article_index))
                     article.get_content()
                     self.curr_article = article
                     api.article.format_comments_list(
@@ -116,7 +125,8 @@ class ArticleCommand(Command):
                 elif len(api.article.articles_oid()) < 1:
                     article_list = api.article.list_articles()
                     api.article.format_article_list(article_list)
-                    article = api.article.get_article(api.article.articles_oid(article_index))
+                    article = api.article.get_article(
+                        api.article.articles_oid(article_index))
                     article.get_content()
                     self.curr_article = article
                     api.article.format_comments_list(
@@ -132,7 +142,8 @@ class ArticleCommand(Command):
             comment_content = lt[1]
 
             try:
-                api.article.comment_article(self.curr_article.oId, comment_content)
+                api.article.comment_article(
+                    self.curr_article.oId, comment_content)
             except Exception:
                 print("选择需要评论的帖子")
 
@@ -255,7 +266,7 @@ class BanSomeoneCommand(Command):
         elif ban_type == 'user':
             ban_someone(api, ' '.join(it))
         else:
-            print('非法指令, ban指令应该为: ban keyword|user name')
+            print('非法指令, ban指令应该为: ban (keyword|user) 用户名')
 
 
 class ReleaseSomeoneCommand(Command):
@@ -267,7 +278,19 @@ class ReleaseSomeoneCommand(Command):
         elif release_type == 'user':
             release_someone(api, ' '.join(it))
         else:
-            print('非法指令, release指令应该为: release keyword|user name')
+            print('非法指令, release指令应该为: release (keyword|user) 用户名')
+
+
+class NotificationKeywordCommand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        it = (i for i in args)
+        type = next(it)
+        if type == '-d':
+            remove_keyword_to_nitification(it)
+        elif type == '-a':
+            put_keyword_to_nitification(it)
+        else:
+            print('非法指令, notification指令应该为: notification (-d | -a)) keyword')
 
 
 class GetUserInfoCommand(Command):
@@ -296,7 +319,8 @@ class ChangeCurrentUserCommand(Command):
         print(f'账户切换 {api.current_user} ===> {target_user_name}')
         api.sockpuppets[api.current_user].offline()
         if target_user_name in api.sockpuppets:
-            api.sockpuppets[target_user_name].online(ChatRoom().start)
+            api.sockpuppets[target_user_name].online(
+                ChatRoom().start, partial(User().online, user=api.sockpuppets[target_user_name]))
         else:
             print('请输入密码:')
             api_key = ''
@@ -304,12 +328,21 @@ class ChangeCurrentUserCommand(Command):
                 password = input("")
                 api.login(target_user_name, password)
                 api_key = api.api_key
-            GLOBAL_CONFIG.auth_config.username = target_user_name
-            GLOBAL_CONFIG.auth_config.password = password
-            GLOBAL_CONFIG.auth_config.key = api_key
             api.sockpuppets[target_user_name] = UserInfo(
                 target_user_name, password, api_key)
-            api.sockpuppets[target_user_name].online(ChatRoom().start)
+            api.sockpuppets[target_user_name].online(
+                ChatRoom().start, partial(User().online, user=api.sockpuppets[target_user_name]))
+
+
+class ChatCommand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        target_user_name = " ".join(args)
+        if '' == target_user_name:
+            api.chat.render_recent_chat_users()
+        else:
+            print(f'私聊通道建立中 {api.current_user} ===> {target_user_name} ...')
+            api.sockpuppets[api.current_user].chat(
+                Chat(target_user_name).start)
 
 
 class PointTransferCommand(Command):
@@ -436,6 +469,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#help', help_c)
     cli_handler.add_command('#cli', EnterCil())
     cli_handler.add_command('#chatroom', EnterChatroom())
+    cli_handler.add_command('#chat', ChatCommand())
     cli_handler.add_command('#siguo', SiGuoYa())
     cli_handler.add_command('#article', ArticleCommand())
     cli_handler.add_command('#bm', BreezemoonsCommand())
@@ -455,6 +489,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#blacklist', BlackListCommand())
     cli_handler.add_command('#ban', BanSomeoneCommand())
     cli_handler.add_command('#release', ReleaseSomeoneCommand())
+    cli_handler.add_command('#notification', NotificationKeywordCommand())
     cli_handler.add_command('#rp', RedpacketCommand())
     cli_handler.add_command('#rp-ave', AVGRedpacketCommand())
     cli_handler.add_command('#rp-hb', HBRedpacketCommand())

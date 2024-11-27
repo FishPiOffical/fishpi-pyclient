@@ -10,8 +10,10 @@ from termcolor import colored
 
 from src.api import API, FishPi
 from src.api.config import GLOBAL_CONFIG
+from src.api.enum import NTYPE
 from src.api.ws import WS
 
+from .notification import Event, sender, sys_notification
 from .redpacket import render_redpacket, rush_redpacket
 
 REPEAT_POOL = {}  # 复读池
@@ -50,6 +52,8 @@ def render(api: FishPi, message: dict) -> None:
             executor.submit(rush_redpacket, api, message)
         else:
             renderChatroomMsg(api, message)
+            at_notification(api, message)
+            kw_notification(api, message)
 
 
 def renderChatroomMsg(api: FishPi, message: dict) -> None:
@@ -65,11 +69,8 @@ def renderChatroomMsg(api: FishPi, message: dict) -> None:
             f'\t\t\t\t\t\t你说: {message["md"]}', GLOBAL_CONFIG.chat_config.chat_user_color))
         api.chatroom.last_msg_id = message['oId']
     else:
-        if len(GLOBAL_CONFIG.chat_config.kw_blacklist) > 0:
-            hasKeyword = any(
-                i for i in GLOBAL_CONFIG.chat_config.kw_blacklist if message["md"].__contains__(i))
-            if hasKeyword:
-                return
+        if _kw_blacklist(api, message):
+            return
         if "client" in message:
             print(f'[{time}] 来自({message["client"]})')
         else:
@@ -150,3 +151,26 @@ def renderWeather(username: str, lines: list[str]) -> str:
                 table.add_row(row_data)
             lines[index] = table.get_string()
     return '\n'.join(lines)
+
+
+def at_notification(api: FishPi, message: dict) -> None:
+    if message["userName"] != api.current_user and message["md"].__contains__(f'@{api.current_user}'):
+        sender(Event(type=NTYPE.FROM_CHATROOM, sender=message["userName"],
+                     content=message['md']), sys_notification)
+
+
+def kw_notification(api: FishPi, message: dict) -> None:
+    if len(GLOBAL_CONFIG.chat_config.kw_notification) == 0:
+        return
+    if message["userName"] != api.current_user and any(
+            i for i in GLOBAL_CONFIG.chat_config.kw_notification if message["md"].__contains__(i)):
+        sender(Event(type=NTYPE.FROM_KEYWORD, sender=message["userName"],
+                     content=message['md']), sys_notification)
+
+
+def _kw_blacklist(api: FishPi, message: dict) -> bool:
+    if len(GLOBAL_CONFIG.chat_config.kw_blacklist) > 0:
+        return any(
+            i for i in GLOBAL_CONFIG.chat_config.kw_blacklist if message["md"].__contains__(i))
+    else:
+        return False

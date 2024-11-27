@@ -16,10 +16,11 @@ from src.api.config import (
     RedPacketConfig,
     init_defualt_config,
 )
-from src.utils import HOST
+from src.utils import HOST, cli_login
 
 from .chatroom import ChatRoom, init_soliloquize
 from .command import init_cli
+from .user import User
 
 
 class Initor(ABC):
@@ -102,6 +103,8 @@ class LoginInitor(Initor):
                       GLOBAL_CONFIG.auth_config.password,
                       GLOBAL_CONFIG.auth_config.mfa_code)
             GLOBAL_CONFIG.auth_config.key = api.api_key
+            if cli_login(GLOBAL_CONFIG.auth_config.username):
+                api.user_key_write_to_config_file()
         else:
             # 直接使用api-key
             username = api.user.get_username_by_key(
@@ -122,13 +125,15 @@ class LoginInitor(Initor):
                           GLOBAL_CONFIG.auth_config.password,
                           GLOBAL_CONFIG.auth_config.mfa_code)
                 GLOBAL_CONFIG.auth_config.key = api.api_key
+                if cli_login(GLOBAL_CONFIG.auth_config.username):
+                    api.user_key_write_to_config_file()
         if len(GLOBAL_CONFIG.auth_config.accounts) != 0:
             api.sockpuppets = {account[0]: UserInfo(
                 account[0], account[1], '') for account in GLOBAL_CONFIG.auth_config.accounts}
         api.sockpuppets[api.current_user] = UserInfo(
             api.current_user, GLOBAL_CONFIG.auth_config.password, api.api_key)
-        api.sockpuppets[api.current_user].is_online = True
-        api.user_key_write_to_config_file()
+        api.sockpuppets[api.current_user].in_chatroom = True
+        User().online(api.sockpuppets[api.current_user])
 
 
 class ChaRoomInitor(Initor):
@@ -276,6 +281,9 @@ def init_chat_config(config: ConfigParser) -> ChatConfig:
     ret.kw_blacklist = json.loads(config.get('chat', 'kwBlacklist'))
     if ret.kw_blacklist.__contains__(''):
         ret.kw_blacklist.remove('')
+    ret.kw_notification = json.loads(config.get('chat', 'kwNotification'))
+    if ret.kw_notification.__contains__(''):
+        ret.kw_notification.remove('')
     ret.fish_ball = config.get('chat', "fishBall")
     init_chat_color(ret, config)
     return ret
