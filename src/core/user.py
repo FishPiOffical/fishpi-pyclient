@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from src.api import FishPi, UserInfo
-from src.api.ws import WS
 from src.api.enum import NTYPE
-from .notification import (sender, Event, sys_notification)
+from src.api.ws import WS
+
+from .notification import Event, sender, sys_notification
 
 
 class User(WS):
@@ -27,7 +28,6 @@ class User(WS):
 
 
 def chat_notification(api: FishPi, message: dict) -> None:
-    print('收到私信')
     if 'newIdleChatMessage' != message['command']:
         return
     sender(Event(type=NTYPE.FROM_CHAT, sender=message["senderUserName"],

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
 import re
-import schedule
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import parse_qs, urlparse
 
+import schedule
 from prettytable import PrettyTable
 from termcolor import colored
 

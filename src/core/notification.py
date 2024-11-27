@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from abc import ABC
-import queue
 import re
+from abc import ABC
+
 from plyer import notification
 
 from src.api.config import GLOBAL_CONFIG
@@ -20,27 +20,9 @@ class Event(ABC):
         return f'{self.type} {self.sender}: {self.content}'
 
 
-EVENT_QUEUE = queue.Queue[Event]()
-
-
 def sender(event: Event, *consumers):
     for consumer in consumers:
         consumer(event)
-    EVENT_QUEUE.put(event)
-
-
-def flush():
-    events: list[Event] = []
-    while not EVENT_QUEUE.empty():
-        event = EVENT_QUEUE.get()
-        events.append(event)
-        EVENT_QUEUE.task_done()
-
-    if events:
-        # 批量写入文件
-        with open("./events.log", "a") as f:
-            for event in events:
-                f.write(f"{str(event)}\n")
 
 
 def sys_notification(event: Event):
@@ -75,7 +57,7 @@ def put_keyword_to_nitification(args: tuple[str, ...]) -> None:
         lines = src.readlines()
 
     for i in range(len(lines)):
-        lines[i] = re.sub(r'^kw[nN]tification\s*=.*', "kwNtification=" +
+        lines[i] = re.sub(r'^kw[nN]otification\s*=.*', "kwNotification=" +
                           str(GLOBAL_CONFIG.chat_config.kw_notification).replace("\'", "\""), lines[i])
     with open(GLOBAL_CONFIG.cfg_path, 'w', encoding='utf-8') as dst:
         dst.write("".join(lines))
@@ -95,15 +77,15 @@ def remove_keyword_to_nitification(args: tuple[str, ...]) -> None:
 
     after: str = ''
     if len(GLOBAL_CONFIG.chat_config.kw_notification) == 0:
-        after = 'kwNtification=[]'
+        after = 'kwNotification=[]'
     else:
-        after = "kwNtification=" + \
+        after = "kwNotification=" + \
                 str(GLOBAL_CONFIG.chat_config.kw_notification).replace("\'", "\"")
 
     with open(GLOBAL_CONFIG.cfg_path, "r+", encoding='utf-8') as src:
         lines = src.readlines()
 
     for i in range(len(lines)):
-        lines[i] = re.sub(r'^kw[nN]tification\s*=.*', after, lines[i])
+        lines[i] = re.sub(r'^kw[nN]otification\s*=.*', after, lines[i])
     with open(GLOBAL_CONFIG.cfg_path, 'w', encoding='utf-8') as dst:
         dst.write("".join(lines))

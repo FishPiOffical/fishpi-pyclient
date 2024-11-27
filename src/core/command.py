@@ -26,12 +26,9 @@ from .blacklist import (
     release_someone,
     remove_keyword_to_bl,
 )
-from .notification import (
-    put_keyword_to_nitification,
-    remove_keyword_to_nitification
-)
 from .chat import Chat
 from .chatroom import ChatRoom
+from .notification import put_keyword_to_nitification, remove_keyword_to_nitification
 from .user import User, render_online_users, render_user_info
 
 
