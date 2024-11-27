@@ -26,6 +26,10 @@ from .blacklist import (
     release_someone,
     remove_keyword_to_bl,
 )
+from .notification import (
+    put_keyword_to_nitification,
+    remove_keyword_to_nitification
+)
 from .chat import Chat
 from .chatroom import ChatRoom
 from .user import User, render_online_users, render_user_info
@@ -265,7 +269,7 @@ class BanSomeoneCommand(Command):
         elif ban_type == 'user':
             ban_someone(api, ' '.join(it))
         else:
-            print('非法指令, ban指令应该为: ban keyword|user name')
+            print('非法指令, ban指令应该为: ban (keyword|user) 用户名')
 
 
 class ReleaseSomeoneCommand(Command):
@@ -277,7 +281,19 @@ class ReleaseSomeoneCommand(Command):
         elif release_type == 'user':
             release_someone(api, ' '.join(it))
         else:
-            print('非法指令, release指令应该为: release keyword|user name')
+            print('非法指令, release指令应该为: release (keyword|user) 用户名')
+
+
+class NotificationKeywordCommand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        it = (i for i in args)
+        type = next(it)
+        if type == '-d':
+            remove_keyword_to_nitification(it)
+        elif type == '-a':
+            put_keyword_to_nitification(it)
+        else:
+            print('非法指令, notification指令应该为: notification (-d | -a)) keyword')
 
 
 class GetUserInfoCommand(Command):
@@ -476,6 +492,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#blacklist', BlackListCommand())
     cli_handler.add_command('#ban', BanSomeoneCommand())
     cli_handler.add_command('#release', ReleaseSomeoneCommand())
+    cli_handler.add_command('#notification', NotificationKeywordCommand())
     cli_handler.add_command('#rp', RedpacketCommand())
     cli_handler.add_command('#rp-ave', AVGRedpacketCommand())
     cli_handler.add_command('#rp-hb', HBRedpacketCommand())

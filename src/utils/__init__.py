@@ -13,7 +13,7 @@ COMMAND_GUIDE = '''
 [#chatroom] 进入聊天室模式
 [#chat] 私聊 #chat Gakkiyomi 进入和Gakkiyomi的私聊窗口
 [#siguo] 思过崖
-[#article] 看帖 (默认显示20个帖子) [view|page] {int} / 回帖 #article comment {str}
+[#article] 看帖 (默认显示20个帖子) [view|page] (int) / 回帖 #article comment (str)
 [#rp] 1 128 1个128积分 (默认5个,128积分)拼手气红包
 [#rp-ave] 1 128 1个128积分 (默认5个,32积分)平均红包
 [#rp-hb] 5 128 5个128积分 (默认5个,32积分)心跳红包
@@ -37,6 +37,7 @@ COMMAND_GUIDE = '''
 [#blacklist] 查看黑名单列表
 [#ban keyword|user xxx] 将某人或者关键词送入黑名单
 [#release keyword|user xxx] 将某人或者关键词解除黑名单
+[#notification {-d|-a}}] keyword 动态修改关键词提醒
 [#liveness] 查看当前活跃度(⚠️慎用，如果频繁请求此命令(最少间隔30s)，登录状态会被直接注销,需要重启脚本！)
 '''
 
@@ -45,10 +46,10 @@ RPS_LOSED = '![](https://pwl.stackoverflow.wiki/2022/04/MB2SCYFZFVT2DQ0GI7-c6447
 RPS_ZERO = '![](https://file.fishpi.cn/2023/05/1683183148506-4c31497e.png)'
 
 
-RP_RE = re.compile('(\d) (\d+)')
-RP_SEND_TO_CODE_RE = re.compile('(\d+) ([\w,]+)(?<!,)$')
-RP_TIME_CODE_RE = re.compile('(\d+)')
-TRANSFER_RE = re.compile('(\d+) (\w+)( \S+)?')
+RP_RE = re.compile(r'(\d) (\d+)')
+RP_SEND_TO_CODE_RE = re.compile(r'(\d+) ([\w,]+)(?<!,)$')
+RP_TIME_CODE_RE = re.compile(r'(\d+)')
+TRANSFER_RE = re.compile(r'(\d+) (\w+)( \S+)?')
 
 
 def cli_login(cli_user: str) -> bool:

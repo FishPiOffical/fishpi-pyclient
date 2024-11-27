@@ -56,7 +56,7 @@ class AuthConfig(object):
 
 
 class ChatConfig(object):
-    def __init__(self, blacklist: list[str] = [], kw_blacklist: list[str] = ['你点的歌来了'], repeat_mode_switch=False, frequency=5, soliloquize_switch=False,
+    def __init__(self, blacklist: list[str] = [], kw_notification: list[str] = [], kw_blacklist: list[str] = ['你点的歌来了'], repeat_mode_switch=False, frequency=5, soliloquize_switch=False,
                  soliloquize_frequency=20, sentences: list[str] = [], answer_mode: bool = False, fish_ball: str = '凌 捞鱼丸',
                  chat_user_color: str | None = None, chat_content_color: str | None = None):
         self.repeat_mode_switch = repeat_mode_switch
@@ -67,6 +67,7 @@ class ChatConfig(object):
                           '吃饭了没有?', '💗 爱你哟！'] + sentences
         self.blacklist = blacklist
         self.kw_blacklist = kw_blacklist
+        self.kw_notification = kw_notification
         self.answer_mode = answer_mode
         self.fish_ball = fish_ball
         self.chat_user_color = chat_user_color
@@ -83,6 +84,7 @@ class ChatConfig(object):
             'sentences': '[' + ",".join('\"'+item+'\"' for item in self.sentences) + ']',
             'blacklist': '[' + ",".join('\"'+item+'\"' for item in self.blacklist) + ']',
             'kwBlacklist': '[' + ",".join('\"'+item+'\"' for item in self.kw_blacklist) + ']',
+            'kwNotification': '[' + ",".join('\"'+item+'\"' for item in self.kw_notification) + ']',
             'chatUserColor': self.chat_user_color,
             'chatContentColor': self.chat_content_color
         }

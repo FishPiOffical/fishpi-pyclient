@@ -2,13 +2,15 @@
 
 from src.api import FishPi, UserInfo
 from src.api.ws import WS
+from src.api.enum import NTYPE
+from .notification import (sender, Event, sys_notification)
 
 
 class User(WS):
     WS_URL = 'fishpi.cn/user-channel'
 
     def __init__(self) -> None:
-        super().__init__(User.WS_URL, [])
+        super().__init__(User.WS_URL, [chat_notification])
 
     def on_open(self, ws):
         pass
@@ -22,6 +24,14 @@ class User(WS):
     def online(self, user: UserInfo):
         user.ws[User.WS_URL] = self
         self.start()
+
+
+def chat_notification(api: FishPi, message: dict) -> None:
+    print('收到私信')
+    if 'newIdleChatMessage' != message['command']:
+        return
+    sender(Event(type=NTYPE.FROM_CHAT, sender=message["senderUserName"],
+                 content=message['preview']), sys_notification)
 
 
 def render_user_info(userInfo):

@@ -281,6 +281,9 @@ def init_chat_config(config: ConfigParser) -> ChatConfig:
     ret.kw_blacklist = json.loads(config.get('chat', 'kwBlacklist'))
     if ret.kw_blacklist.__contains__(''):
         ret.kw_blacklist.remove('')
+    ret.kw_notification = json.loads(config.get('chat', 'kwNotification'))
+    if ret.kw_notification.__contains__(''):
+        ret.kw_notification.remove('')
     ret.fish_ball = config.get('chat', "fishBall")
     init_chat_color(ret, config)
     return ret

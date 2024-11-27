@@ -4,11 +4,10 @@ import enum
 import json
 import time
 
+from src.api.enum import CODE
 from src.api import FishPi
 from src.api.config import GLOBAL_CONFIG
 from src.utils import RPS_LOSED, RPS_SUCCESS, RPS_ZERO
-
-CODE = enum.Enum('REDPACKET_CODE', ['SUCCESS', 'LOSED', 'NOT_ME', "ZERO"])
 
 
 def __open_redpacket_render(username, redpacket: dict) -> CODE:
