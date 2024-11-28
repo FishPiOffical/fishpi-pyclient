@@ -9,4 +9,5 @@ prettytable==3.9.0
 bs4==0.0.1
 html2text==2020.1.16
 plyer==2.1.0
-pyobjus==1.2.3
+# macOS 特定依赖
+pyobjus==1.2.3; platform_system == "Darwin"
