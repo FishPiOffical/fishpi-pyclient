@@ -29,12 +29,11 @@ REQUIRED = [
     'requests', 'websocket-client', 'click', 'schedule', 'objprint', 'colorama', 'termcolor', 'prettytable', 'bs4', 'html2text', 'plyer'
 ]
 
-if platform.system() != 'Windows':
-    REQUIRED.append('pyobjus')
 
 # What packages are optional?
 EXTRAS = {
     # 'fancy feature': ['django'],
+    'macos': ['pyobjus']
 }
 
 # The rest you shouldn't have to touch too much :)
