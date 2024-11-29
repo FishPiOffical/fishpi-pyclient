@@ -110,7 +110,7 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     package_data={
-        '': ['icon.ico'],  # 包含根目录中的 icon.ico 文件
+        '': ['src/icon.ico'],  # 包含根目录中的 icon.ico 文件
     },
     license='MIT',
     classifiers=[
