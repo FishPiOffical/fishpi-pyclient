@@ -11,4 +11,4 @@ def ensure_directory_exists(file_path):
 
 
 # 项目根目录
-project_root = Path(__file__).parent.parent.parent.resolve()
+project_root = Path(__file__).parent.parent.resolve()
