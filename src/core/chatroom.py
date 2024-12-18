@@ -108,8 +108,11 @@ class ChatRoom(WS):
         print('已经离开聊天室')
 
     def aysnc_start_ws(self):
-        if API.chatroom.get_ws_nodes()['code'] == 0:
-            ChatRoom.WS_URL = API.chatroom.get_ws_nodes()['data']
+        ret = API.chatroom.get_ws_nodes()
+        if ret['code'] != 0:
+            super().aysnc_start_ws()
+            return
+        ChatRoom.WS_URL = ret['data']
         websocket.enableTrace(False)
         ws_instance = websocket.WebSocketApp(ChatRoom.WS_URL,
                                              on_open=self.on_open,
