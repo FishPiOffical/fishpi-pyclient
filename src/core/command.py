@@ -483,7 +483,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#point', GetPointCommand())
     cli_handler.add_command('#me', ShowCurrentUserCommand())
     cli_handler.add_command('#account', ShowSockpuppetCommand())
-    cli_handler.add_command('#change', ChangeCurrentUserCommand())
+    cli_handler.add_command('#su', ChangeCurrentUserCommand())
     cli_handler.add_command('#user', GetUserInfoCommand())
     cli_handler.add_command('#online-users', OnlineUserCommand())
     cli_handler.add_command('#blacklist', BlackListCommand())

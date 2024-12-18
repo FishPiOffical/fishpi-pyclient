@@ -33,7 +33,7 @@ COMMAND_GUIDE = '''
 [#user username] 输入 #user 用户名 可查看此用户详细信息 (#user Gakkiyomi)
 [#me] 查看当前在线账号
 [#account] 查看分身账号
-[#change] 账号切换 #change Gakkiyomi
+[#su] 账号切换 #su Gakkiyomi
 [#blacklist] 查看黑名单列表
 [#ban keyword|user xxx] 将某人或者关键词送入黑名单
 [#release keyword|user xxx] 将某人或者关键词解除黑名单

@@ -5,11 +5,11 @@ import random
 import requests
 
 from src.api import Base
+from src.api.redpacket import RedPacket, RedPacketType
 from src.utils import UA
 from src.utils.version import __version__
 
 from .config import GLOBAL_CONFIG
-from .redpacket import *
 
 
 class ChatRoomAPI(Base):
@@ -84,4 +84,9 @@ class ChatRoomAPI(Base):
                 print('思过崖空无一人')
             else:
                 print(
-                    f'思过崖: {list(map(lambda x: x["userName"] ,ret["data"]))}')
+                    f'思过崖: {list(map(lambda x: x["userName"], ret["data"]))}')
+
+    def get_ws_nodes(self) -> dict:
+        resp = requests.get(
+            f"{GLOBAL_CONFIG.host}/chat-room/node/get?apiKey={self.api_key}", headers={'User-Agent': UA})
+        return json.loads(resp.text)

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import random
 import re
+import ssl
 from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import schedule
+import websocket
 from prettytable import PrettyTable
 from termcolor import colored
 
@@ -104,6 +106,19 @@ class ChatRoom(WS):
 
     def on_close(self, obj, close_status_code, close_msg):
         print('已经离开聊天室')
+
+    def aysnc_start_ws(self):
+        if API.chatroom.get_ws_nodes()['code'] == 0:
+            ChatRoom.WS_URL = API.chatroom.get_ws_nodes()['data']
+        websocket.enableTrace(False)
+        ws_instance = websocket.WebSocketApp(ChatRoom.WS_URL,
+                                             on_open=self.on_open,
+                                             on_message=self.on_message,
+                                             on_error=self.on_error,
+                                             on_close=self.on_close)
+        self.instance = ws_instance
+        API.sockpuppets[API.current_user].ws[self.ws_url] = self
+        ws_instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
 
 def fish_ball_trigger(api: FishPi, message: dict) -> None:

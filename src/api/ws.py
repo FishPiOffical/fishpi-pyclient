@@ -32,7 +32,7 @@ class WS(ABC):
             call(API, data)
 
     def start(self):
-        threading.Thread(target=aysnc_start_ws, args=(self,)).start()
+        threading.Thread(target=self.aysnc_start_ws, args=()).start()
 
     def stop(self):
         self.instance.close()
@@ -41,20 +41,19 @@ class WS(ABC):
         self.ws_calls = None
         self.ws_url = None
 
-
-def aysnc_start_ws(ws: WS):
-    websocket.enableTrace(False)
-    if hasattr(ws, 'params'):
-        query_string = urlencode(ws.params)
-        base_url = f"wss://{ws.ws_url}?apiKey={API.api_key}"
-        ws_url = f"{base_url}&{query_string}" if query_string else base_url
-    else:
-        ws_url = f"wss://{ws.ws_url}?apiKey={API.api_key}"
-    ws_instance = websocket.WebSocketApp(ws_url,
-                                         on_open=ws.on_open,
-                                         on_message=ws.on_message,
-                                         on_error=ws.on_error,
-                                         on_close=ws.on_close)
-    ws.instance = ws_instance
-    API.sockpuppets[API.current_user].ws[ws.ws_url] = ws
-    ws_instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+    def aysnc_start_ws(self):
+        websocket.enableTrace(False)
+        if hasattr(self, 'params'):
+            query_string = urlencode(self.params)
+            base_url = f"wss://{self.ws_url}?apiKey={API.api_key}"
+            ws_url = f"{base_url}&{query_string}" if query_string else base_url
+        else:
+            ws_url = f"wss://{self.ws_url}?apiKey={API.api_key}"
+        ws_instance = websocket.WebSocketApp(ws_url,
+                                             on_open=self.on_open,
+                                             on_message=self.on_message,
+                                             on_error=self.on_error,
+                                             on_close=self.on_close)
+        self.instance = ws_instance
+        API.sockpuppets[API.current_user].ws[self.ws_url] = self
+        ws_instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
