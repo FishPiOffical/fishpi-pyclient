@@ -227,13 +227,6 @@ class GetLivenessCommand(Command):
         print("当前活跃度: " + str(api.user.get_liveness_info()["liveness"]))
 
 
-class BrushLivenessCommand(Command):
-    def exec(self, api: FishPi, args: Tuple[str, ...]):
-        articles = map(lambda article: api.article.get_article(
-            article_id=article['oId']), api.article.list_articles())
-        # TODO
-
-
 class GetRewardCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         api.chatroom.send("小冰 去打劫")  # 魔法

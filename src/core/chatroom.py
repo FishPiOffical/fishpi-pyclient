@@ -2,13 +2,10 @@
 import json
 import queue
 import random
-import re
 import ssl
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import parse_qs, urlencode, urlparse
 
-import objprint
 import schedule
 import websocket
 from prettytable import PrettyTable

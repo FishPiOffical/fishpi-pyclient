@@ -79,7 +79,7 @@ class FileConfigInitor(Initor):
                 GLOBAL_CONFIG.chat_config = init_chat_config(config)
                 GLOBAL_CONFIG.cfg_path = file_path
                 GLOBAL_CONFIG.host = init_host_config(config)
-        except Exception as e:
+        except Exception:
             print(f'{file_path}配置文件不合法')
 
 
