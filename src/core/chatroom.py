@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import json
+import queue
 import random
 import re
 import ssl
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import parse_qs, urlencode, urlparse
 
+import objprint
 import schedule
 import websocket
 from prettytable import PrettyTable
@@ -66,28 +70,65 @@ def renderChatroomMsg(api: FishPi, message: dict) -> None:
     if len(GLOBAL_CONFIG.chat_config.blacklist) > 0 and GLOBAL_CONFIG.chat_config.blacklist.__contains__(user):
         return
     if user == api.current_user:
-        print(f"\t\t\t\t\t\t[{time}]")
-        print(colored(
-            f'\t\t\t\t\t\t你说: {message["md"]}', GLOBAL_CONFIG.chat_config.chat_user_color))
+        output(f"\t\t\t\t\t\t[{time}]", f"\t\t\t\t\t\t[{time}]")
+        output(colored(
+            f'\t\t\t\t\t\t你说: {message["md"]}', GLOBAL_CONFIG.chat_config.chat_user_color), f'\t\t\t\t\t\t你说: {message["md"]}')
         api.chatroom.last_msg_id = message['oId']
     else:
         if _kw_blacklist(api, message):
             return
         if "client" in message:
-            print(f'[{time}] 来自({message["client"]})')
+            output(f'[{time}] 来自({message["client"]})',
+                   f'[{time}] 来自({message["client"]})')
         else:
-            print(f"[{time}]")
+            output(f"[{time}]", f"[{time}]")
         if len(user_nick_name) > 0:
-            print(colored(f"{user_nick_name}({user})说:",
-                  GLOBAL_CONFIG.chat_config.chat_user_color))
+            output(colored(f"{user_nick_name}({user})说:",
+                           GLOBAL_CONFIG.chat_config.chat_user_color), f"{user_nick_name}({user})说:")
         else:
-            print(
-                colored(f"{user}说:", GLOBAL_CONFIG.chat_config.chat_user_color))
-        print(colored(remove_msg_tail(message),
-              GLOBAL_CONFIG.chat_config.chat_content_color))
-        print("\r\n")
+            output(
+                colored(f"{user}说:", GLOBAL_CONFIG.chat_config.chat_user_color), f"{user}说:")
+        origin_msg = remove_msg_tail(message)
+        output(colored(origin_msg,
+                       GLOBAL_CONFIG.chat_config.chat_content_color), origin_msg)
+        output("\r\n", "\r\n")
     if GLOBAL_CONFIG.chat_config.repeat_mode_switch:
         repeat(api, message["md"])
+
+
+# 创建一个队列和一个单独的线程来处理文件写入
+__message_queue = queue.Queue()
+should_stop = threading.Event()
+
+
+def file_writer():
+    while not should_stop.is_set():
+        try:
+            message = __message_queue.get(timeout=1)
+            appendToFile(message)
+        except queue.Empty:
+            continue
+
+
+file_writer_thread = threading.Thread(target=file_writer)
+file_writer_thread.start()
+
+
+def output(message: str, origin_message: str) -> None:
+    if GLOBAL_CONFIG.chat_config.output_mode == 'console':
+        print(message)
+    elif GLOBAL_CONFIG.chat_config.output_mode == 'file':
+        appendToFile(origin_message)
+    elif GLOBAL_CONFIG.chat_config.output_mode == 'backup':
+        print(message)
+        __message_queue.put(origin_message)
+    else:
+        print(message)
+
+
+def appendToFile(message: str) -> None:
+    with open(f'{GLOBAL_CONFIG.chat_config.output_path}', 'a') as f:
+        f.write(message + '\n')
 
 
 class ChatRoom(WS):
@@ -152,22 +193,20 @@ def renderWeather(username: str, lines: list[str]) -> str:
     if username != 'xiaoIce':
         return '\n'.join(lines)
     for index in range(len(lines)):
-        match = re.search(r'src="(.*?)"', lines[index])
-        if match:
-            src_url = match.group(1)
-            parsed_url = urlparse(src_url)
-            data = parse_qs(parsed_url.query)
-            data['date'] = data['date'][0].split(',')
-            data['weatherCode'] = data['weatherCode'][0].split(',')
-            data['max'] = data['max'][0].split(',')
-            data['min'] = data['min'][0].split(',')
-            table = PrettyTable()
-            table.title = data.pop('t')[0] + ' ' + data.pop('st')[0]
-            table.field_names = list(data.keys())
-            for i in range(len(data['date'])):
-                row_data = [data[key][i] for key in data.keys()]
-                table.add_row(row_data)
-            lines[index] = table.get_string()
+        data = json.loads(lines[index])
+        data['date'] = data['date'].split(',')
+        data['weatherCode'] = data['weatherCode'].split(',')
+        data['max'] = [i + '°C' for i in data['max'].split(',')]
+        data['min'] = [i + '°C' for i in data['min'].split(',')]
+        data.pop('msgType')
+        data.pop('type')
+        table = PrettyTable()
+        table.title = data.pop('t') + ' ' + data.pop('st')
+        table.field_names = list(data.keys())
+        for i in range(len(data['date'])):
+            row_data = [data[key][i] for key in data.keys()]
+            table.add_row(row_data)
+        lines[index] = table.get_string()
     return '\n'.join(lines)
 
 

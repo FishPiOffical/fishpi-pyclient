@@ -13,6 +13,7 @@ from src.api.config import GLOBAL_CONFIG, Config, init_defualt_config
 from src.api.redpacket import RedPacket, RedPacketType, RPSRedPacket, SpecifyRedPacket
 from src.utils import (
     COMMAND_GUIDE,
+    OUTPUT_RE,
     RP_RE,
     RP_SEND_TO_CODE_RE,
     RP_TIME_CODE_RE,
@@ -439,6 +440,30 @@ class RedpacketToCommand(Command):
             print("非法红包指令")
 
 
+class OutputModeComand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        mode = ' '.join(args)
+        if re.fullmatch(OUTPUT_RE, mode):
+            if mode != 'console' and (GLOBAL_CONFIG.chat_config.output_path is None
+                                      or GLOBAL_CONFIG.chat_config.output_path == ''):
+                print("请先设置文件输出路径,指令op_path <path>")
+                return
+            GLOBAL_CONFIG.chat_config.output_mode = mode
+            print(f"文件输出模式已设置为{mode}")
+        else:
+            print("非法指令,输出模式只能是以下值[file|backup|console]")
+
+
+class OutputPathComand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        path = ' '.join(args)
+        if path == '':
+            return
+        GLOBAL_CONFIG.chat_config.output_path = path
+        print(f"文件输出路径已设置为{path}")
+        api.opPath_write_to_config_file(path)
+
+
 class CLIInvoker:
     def __init__(self, api):
         self.api = api
@@ -468,7 +493,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#h', help_c)
     cli_handler.add_command('#help', help_c)
     cli_handler.add_command('#cli', EnterCil())
-    cli_handler.add_command('#chatroom', EnterChatroom())
+    cli_handler.add_command('#cr', EnterChatroom())
     cli_handler.add_command('#chat', ChatCommand())
     cli_handler.add_command('#siguo', SiGuoYa())
     cli_handler.add_command('#article', ArticleCommand())
@@ -486,7 +511,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#su', ChangeCurrentUserCommand())
     cli_handler.add_command('#user', GetUserInfoCommand())
     cli_handler.add_command('#online-users', OnlineUserCommand())
-    cli_handler.add_command('#blacklist', BlackListCommand())
+    cli_handler.add_command('#bl', BlackListCommand())
     cli_handler.add_command('#ban', BanSomeoneCommand())
     cli_handler.add_command('#release', ReleaseSomeoneCommand())
     cli_handler.add_command('#notification', NotificationKeywordCommand())
@@ -497,4 +522,6 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#rp-rps-limit', RPSLimitCommand())
     cli_handler.add_command('#rp-time', RedpacketTimeCommand())
     cli_handler.add_command('#rp-to', RedpacketToCommand())
+    cli_handler.add_command('#op-mode', OutputModeComand())
+    cli_handler.add_command('#op-path', OutputPathComand())
     cli_handler.run()

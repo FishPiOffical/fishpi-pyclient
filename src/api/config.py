@@ -58,7 +58,7 @@ class AuthConfig(object):
 class ChatConfig(object):
     def __init__(self, blacklist: list[str] = [], kw_notification: list[str] = [], kw_blacklist: list[str] = ['你点的歌来了'], repeat_mode_switch=False, frequency=5, soliloquize_switch=False,
                  soliloquize_frequency=20, sentences: list[str] = [], answer_mode: bool = False, fish_ball: str = '凌 捞鱼丸',
-                 chat_user_color: str | None = None, chat_content_color: str | None = None):
+                 chat_user_color: str | None = None, chat_content_color: str | None = None, output_mode: str = 'console', output_path: str = None):
         self.repeat_mode_switch = repeat_mode_switch
         self.frequency = frequency
         self.soliloquize_switch = soliloquize_switch
@@ -72,6 +72,8 @@ class ChatConfig(object):
         self.fish_ball = fish_ball
         self.chat_user_color = chat_user_color
         self.chat_content_color = chat_content_color
+        self.output_mode = output_mode
+        self.output_path = output_path
 
     def to_config(self) -> dict:
         res = {
@@ -86,7 +88,9 @@ class ChatConfig(object):
             'kwBlacklist': '[' + ",".join('\"'+item+'\"' for item in self.kw_blacklist) + ']',
             'kwNotification': '[' + ",".join('\"'+item+'\"' for item in self.kw_notification) + ']',
             'chatUserColor': self.chat_user_color,
-            'chatContentColor': self.chat_content_color
+            'chatContentColor': self.chat_content_color,
+            'outputMode': self.output_mode,
+            'outputPath': self.output_path
         }
 
         if self.chat_user_color is None:

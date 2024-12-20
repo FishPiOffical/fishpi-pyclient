@@ -56,3 +56,13 @@ class Base(object):
         with open(GLOBAL_CONFIG.cfg_path, 'w', encoding='utf-8') as dst:
             after = f"key={self.api_key}"
             dst.write(re.sub(r'key\s*=.*', after, config_text))
+
+    def opPath_write_to_config_file(self, path: str = ""):
+        # 持久化到文件
+        if GLOBAL_CONFIG.cfg_path is None:
+            return
+        with open(GLOBAL_CONFIG.cfg_path, "r+", encoding='utf-8') as src:
+            config_text = src.read()
+        with open(GLOBAL_CONFIG.cfg_path, 'w', encoding='utf-8') as dst:
+            after = f"outputPath={path}"
+            dst.write(re.sub(r'outputPath\s*=.*', after, config_text))

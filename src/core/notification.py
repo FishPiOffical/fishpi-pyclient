@@ -65,7 +65,7 @@ def put_keyword_to_nitification(args: tuple[str, ...]) -> None:
 
 def remove_keyword_to_nitification(args: tuple[str, ...]) -> None:
     for keyword in args:
-        if GLOBAL_CONFIG.chat_config.kw_notification.__contains__(keyword) == False:
+        if GLOBAL_CONFIG.chat_config.kw_notification.__contains__(keyword) is False:
             print(f'{keyword} 不在关键词提醒池中')
             continue
         GLOBAL_CONFIG.chat_config.kw_notification.remove(keyword)

@@ -10,7 +10,7 @@ HELP = '输入#help获得命令提示列表'
 
 COMMAND_GUIDE = '''
 [#cli] 进入命令交互模式
-[#chatroom] 进入聊天室模式
+[#cr] 进入聊天室模式
 [#chat] 私聊 #chat Gakkiyomi 进入和Gakkiyomi的私聊窗口
 [#siguo] 思过崖
 [#article] 看帖 (默认显示20个帖子) [view|page] (int) / 回帖 #article comment (str)
@@ -34,7 +34,9 @@ COMMAND_GUIDE = '''
 [#me] 查看当前在线账号
 [#account] 查看分身账号
 [#su] 账号切换 #su Gakkiyomi
-[#blacklist] 查看黑名单列表
+[#bl] 查看黑名单列表
+[#op-mode] 设置窗口输出模式 op-mode {file|backup|console} 支持控制台输出,文件输出,备份输出模式
+[#op-path] 设置输出路径文件 op-path /abc/chatroom.log
 [#ban keyword|user xxx] 将某人或者关键词送入黑名单
 [#release keyword|user xxx] 将某人或者关键词解除黑名单
 [#notification {-d|-a}}] keyword 动态修改关键词提醒
@@ -50,6 +52,7 @@ RP_RE = re.compile(r'(\d) (\d+)')
 RP_SEND_TO_CODE_RE = re.compile(r'(\d+) ([\w,]+)(?<!,)$')
 RP_TIME_CODE_RE = re.compile(r'(\d+)')
 TRANSFER_RE = re.compile(r'(\d+) (\w+)( \S+)?')
+OUTPUT_RE = re.compile(r'(file|backup|console)')
 
 
 def cli_login(cli_user: str) -> bool:

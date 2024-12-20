@@ -286,6 +286,8 @@ def init_chat_config(config: ConfigParser) -> ChatConfig:
         ret.kw_notification.remove('')
     ret.fish_ball = config.get('chat', "fishBall")
     init_chat_color(ret, config)
+    ret.output_mode = config.get('chat', 'outputMode')
+    ret.output_path = config.get('chat', 'outputPath')
     return ret
 
 
