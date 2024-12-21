@@ -297,14 +297,14 @@ class GetUserInfoCommand(Command):
 class ShowCurrentUserCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         print('当前用户')
-        op(api.sockpuppets[api.current_user], exclude=["ws"])
+        op(api.sockpuppets[api.current_user], depth=4, exclude=["instance"])
 
 
 class ShowSockpuppetCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         print('分身账户')
         for user in api.sockpuppets.values():
-            op(user, exclude=["ws"])
+            op(user, depth=4, exclude=["instance"])
 
 
 class ChangeCurrentUserCommand(Command):
