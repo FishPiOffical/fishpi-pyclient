@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
 import signal
-import sys
 
 import click
 import schedule
@@ -33,7 +33,7 @@ def signal_handler(sig, frame):
         for key in keys:
             user.ws[key].stop()
     print("\n收到 Ctrl+C 信号，程序即将退出...")
-    sys.exit(0)
+    os._exit(0)
 
 
 signal.signal(signal.SIGINT, signal_handler)

@@ -1,6 +1,5 @@
 import io
 import os
-import platform
 import sys
 from shutil import rmtree
 
