@@ -132,7 +132,7 @@ class LoginInitor(Initor):
                 account[0], account[1], '') for account in GLOBAL_CONFIG.auth_config.accounts}
         api.sockpuppets[api.current_user] = UserInfo(
             api.current_user, GLOBAL_CONFIG.auth_config.password, api.api_key)
-        api.sockpuppets[api.current_user].in_chatroom = True
+        api.get_current_user().in_chatroom = True
         User().online(api.sockpuppets[api.current_user])
 
 

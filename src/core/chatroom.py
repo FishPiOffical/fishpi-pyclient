@@ -140,9 +140,11 @@ class ChatRoom(WS):
             print('小黑屋成员: ' + str(GLOBAL_CONFIG.chat_config.blacklist))
 
     def on_error(self, obj, error):
+        API.get_current_user().in_chatroom = False
         super().on_error(obj, error)
 
     def on_close(self, obj, close_status_code, close_msg):
+        API.get_current_user().in_chatroom = False
         print('已经离开聊天室')
 
     def aysnc_start_ws(self):
@@ -150,16 +152,15 @@ class ChatRoom(WS):
         if ret['code'] != 0:
             super().aysnc_start_ws()
             return
-        ChatRoom.WS_URL = ret['data']
         websocket.enableTrace(False)
-        ws_instance = websocket.WebSocketApp(ChatRoom.WS_URL,
-                                             on_open=self.on_open,
-                                             on_message=self.on_message,
-                                             on_error=self.on_error,
-                                             on_close=self.on_close)
-        self.instance = ws_instance
-        API.sockpuppets[API.current_user].ws[self.ws_url] = self
-        ws_instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+        self.instance = websocket.WebSocketApp(ret['data'],
+                                               on_open=self.on_open,
+                                               on_message=self.on_message,
+                                               on_error=self.on_error,
+                                               on_close=self.on_close)
+        API.get_current_user().ws[ChatRoom.WS_URL] = self
+        API.get_current_user().in_chatroom = True
+        self.instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
 
 def fish_ball_trigger(api: FishPi, message: dict) -> None:

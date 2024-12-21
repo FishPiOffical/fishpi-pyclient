@@ -46,7 +46,7 @@ class HelpCommand(Command):
 
 class DefaultCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
-        curr_user = api.sockpuppets[api.current_user]
+        curr_user = api.get_current_user()
         if curr_user.in_chatroom:
             if GLOBAL_CONFIG.chat_config.answer_mode:
                 api.chatroom.send(
@@ -57,14 +57,14 @@ class DefaultCommand(Command):
             # chat channel
             if len(curr_user.ws) == 0 or Chat.WS_URL not in curr_user.ws:
                 print("当前为交互模式,无法发送信息")
-                print("请进入聊天室#chatroom或者开启私聊通道#chat username")
+                print("请进入聊天室#cr或者开启私聊通道#chat username")
                 return
             curr_user.ws[Chat.WS_URL].sender(' '.join(args))
 
 
 class EnterCil(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
-        curr_user = api.sockpuppets[api.current_user]
+        curr_user = api.get_current_user()
         if len(curr_user.ws) == 0:
             print("已在交互模式中")
         else:
@@ -75,13 +75,10 @@ class EnterCil(Command):
 
 class EnterChatroom(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
-        curr_user = api.sockpuppets[api.current_user]
+        curr_user = api.get_current_user()
         curr_user.out_chatroom()
         curr_user.out_chat()
-        cr = ChatRoom()
-        curr_user.ws[ChatRoom.WS_URL] = cr
-        curr_user.in_chatroom = True
-        cr.start()
+        ChatRoom().start()
 
 
 class SiGuoYa(Command):
@@ -297,7 +294,7 @@ class GetUserInfoCommand(Command):
 class ShowCurrentUserCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         print('当前用户')
-        op(api.sockpuppets[api.current_user], depth=4, exclude=["instance"])
+        op(api.get_current_user(), depth=4, exclude=["instance"])
 
 
 class ShowSockpuppetCommand(Command):
@@ -311,7 +308,7 @@ class ChangeCurrentUserCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         target_user_name = " ".join(args)
         print(f'账户切换 {api.current_user} ===> {target_user_name}')
-        api.sockpuppets[api.current_user].offline()
+        api.get_current_user().offline()
         if target_user_name in api.sockpuppets:
             api.sockpuppets[target_user_name].online(
                 ChatRoom().start, partial(User().online, user=api.sockpuppets[target_user_name]))
@@ -335,7 +332,7 @@ class ChatCommand(Command):
             api.chat.render_recent_chat_users()
         else:
             print(f'私聊通道建立中 {api.current_user} ===> {target_user_name} ...')
-            api.sockpuppets[api.current_user].chat(
+            api.get_current_user().chat(
                 Chat(target_user_name).start)
 
 

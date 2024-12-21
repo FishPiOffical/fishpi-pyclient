@@ -14,6 +14,7 @@ class WS(ABC):
     def __init__(self, ws_url: str, ws_calls: list[str]) -> None:
         self.ws_url = ws_url
         self.ws_calls = ws_calls
+        self.instance: websocket.WebSocketApp = None
 
     @abstractmethod
     def on_open(self, obj):
@@ -37,7 +38,7 @@ class WS(ABC):
     def stop(self):
         self.instance.close()
         self.instance = None
-        API.sockpuppets[API.current_user].ws.pop(self.ws_url)
+        API.get_current_user().ws.pop(self.ws_url)
         self.ws_calls = None
         self.ws_url = None
 
@@ -49,11 +50,10 @@ class WS(ABC):
             ws_url = f"{base_url}&{query_string}" if query_string else base_url
         else:
             ws_url = f"wss://{self.ws_url}?apiKey={API.api_key}"
-        ws_instance = websocket.WebSocketApp(ws_url,
-                                             on_open=self.on_open,
-                                             on_message=self.on_message,
-                                             on_error=self.on_error,
-                                             on_close=self.on_close)
-        self.instance = ws_instance
-        API.sockpuppets[API.current_user].ws[self.ws_url] = self
-        ws_instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+        self.instance = websocket.WebSocketApp(ws_url,
+                                               on_open=self.on_open,
+                                               on_message=self.on_message,
+                                               on_error=self.on_error,
+                                               on_close=self.on_close)
+        API.get_current_user().ws[self.ws_url] = self
+        self.instance.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})

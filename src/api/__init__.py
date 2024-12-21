@@ -75,6 +75,9 @@ class FishPi(Base):
         self.article.set_token(key)
         self.chat.set_token(key)
 
+    def get_current_user(self):
+        return self.sockpuppets[self.current_user]
+
     def get_breezemoons(self, page: int = 1, size: int = 10) -> dict | None:
         res = requests.get(
             f'{GLOBAL_CONFIG.host}/api/breezemoons?p={page}&size={size}', headers={'User-Agent': UA})
