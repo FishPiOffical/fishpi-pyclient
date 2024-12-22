@@ -140,11 +140,9 @@ class ChatRoom(WS):
             print('小黑屋成员: ' + str(GLOBAL_CONFIG.chat_config.blacklist))
 
     def on_error(self, obj, error):
-        API.get_current_user().in_chatroom = False
         super().on_error(obj, error)
 
     def on_close(self, obj, close_status_code, close_msg):
-        API.get_current_user().in_chatroom = False
         print('已经离开聊天室')
 
     def aysnc_start_ws(self):
