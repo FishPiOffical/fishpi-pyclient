@@ -76,7 +76,7 @@
 [#rp-to] #rp-to 32 Gakkiyomi,xiaoIce (积分 用户)专属红包
 [#rp-time] #rp-time 3 设置抢红包等待时间 
 [#rp-amount] #rp-amount 32 设置红包金额 
-[#bm] 发送清风明月  #bm 今天我要嫁给你！ 
+[#bm] 发送清风明月 #bm 今天我要嫁给你！ 
 [#config] 查看,导出配置文件 #config [dump|show] {-d|-c} (file_path)
 [#answer] 进入|退出 答题模式
 [#checked] 查看当前是否签到
