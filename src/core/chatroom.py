@@ -189,21 +189,28 @@ def renderWeather(username: str, lines: list[str]) -> str:
     if username != 'xiaoIce':
         return '\n'.join(lines)
     for index in range(len(lines)):
-        data = json.loads(lines[index])
-        data['date'] = data['date'].split(',')
-        data['weatherCode'] = data['weatherCode'].split(',')
-        data['max'] = [i + '°C' for i in data['max'].split(',')]
-        data['min'] = [i + '°C' for i in data['min'].split(',')]
-        data.pop('msgType')
-        data.pop('type')
-        table = PrettyTable()
-        table.title = data.pop('t') + ' ' + data.pop('st')
-        table.field_names = list(data.keys())
-        for i in range(len(data['date'])):
-            row_data = [data[key][i] for key in data.keys()]
-            table.add_row(row_data)
-        lines[index] = table.get_string()
+        try:
+            lines[index] = _renderWeather(lines[index])
+        except json.JSONDecodeError:
+            pass
     return '\n'.join(lines)
+
+
+def _renderWeather(json_str: str) -> str:
+    data = json.loads(json_str)
+    data['date'] = data['date'].split(',')
+    data['weatherCode'] = data['weatherCode'].split(',')
+    data['max'] = [i + '°C' for i in data['max'].split(',')]
+    data['min'] = [i + '°C' for i in data['min'].split(',')]
+    data.pop('msgType')
+    data.pop('type')
+    table = PrettyTable()
+    table.title = data.pop('t') + ' ' + data.pop('st')
+    table.field_names = list(data.keys())
+    for i in range(len(data['date'])):
+        row_data = [data[key][i] for key in data.keys()]
+        table.add_row(row_data)
+    return table.get_string()
 
 
 def at_notification(api: FishPi, message: dict) -> None:
