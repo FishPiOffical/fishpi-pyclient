@@ -56,8 +56,9 @@ class DefaultCommand(Command):
         else:
             # chat channel
             if len(curr_user.ws) == 0 or Chat.WS_URL not in curr_user.ws:
-                print("当前为交互模式,无法发送信息")
-                print("请进入聊天室#cr或者开启私聊通道#chat username")
+                if ' '.join(args) != '':
+                    print("当前为交互模式,无法发送信息")
+                    print("请进入聊天室#cr或者开启私聊通道#chat username")
                 return
             curr_user.ws[Chat.WS_URL].sender(' '.join(args))
 
@@ -291,10 +292,34 @@ class GetUserInfoCommand(Command):
             render_user_info(userInfo)
 
 
-class ShowCurrentUserCommand(Command):
+class ShowMeCommand(Command):
     def exec(self, api: FishPi, args: Tuple[str, ...]):
-        print('当前用户')
-        op(api.get_current_user(), depth=4, exclude=["instance"])
+        params = [i for i in args]
+        if params == []:
+            print('当前用户')
+            op(api.get_current_user(), depth=4, exclude=["instance"])
+        else:
+            if params[0] == 'article' and len(params) == 1:
+                self.articles = api.article.list_user_articles(
+                    api.current_user)
+                api.article.format_article_list(self.articles)
+            elif params[0] == 'article' and params[1] == 'view' and len(params) == 3:
+                index = int(params[2])
+                if index < 1 or index > len(self.articles):
+                    print(f"请输入正确的帖子号: 1<=帖子号<={len(self.articles)}")
+                else:
+                    article = api.article.get_article(
+                        api.article.get_article_oid(self.articles, index))
+                    article.get_content()
+                    api.article.format_comments_list(
+                        article.get_articleComments())
+                    print(f"\n[*** 当前帖子:{article.get_tittle()} ***]\n")
+            elif params[0] == 'article' and params[1] == 'page' and len(params) == 3:
+                self.articles = api.article.list_user_articles(
+                    api.current_user, int(params[2]))
+                api.article.format_article_list(self.articles)
+            else:
+                print('指令错误 #me (article) (view | page) {int}')
 
 
 class ShowSockpuppetCommand(Command):
@@ -496,7 +521,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#revoke', RevokeMessageCommand())
     cli_handler.add_command('#liveness', GetLivenessCommand())
     cli_handler.add_command('#point', GetPointCommand())
-    cli_handler.add_command('#me', ShowCurrentUserCommand())
+    cli_handler.add_command('#me', ShowMeCommand())
     cli_handler.add_command('#account', ShowSockpuppetCommand())
     cli_handler.add_command('#su', ChangeCurrentUserCommand())
     cli_handler.add_command('#user', GetUserInfoCommand())

@@ -2,8 +2,8 @@
 
 import hashlib
 import json
+import os
 import re
-import sys
 
 import requests
 
@@ -45,7 +45,7 @@ class Base(object):
                 self.login(username, password, code)
         else:
             print(f"登陆失败: {rsp['msg']}")
-            sys.exit(0)
+            os._exit(0)
 
     def user_key_write_to_config_file(self):
         # 持久化到文件

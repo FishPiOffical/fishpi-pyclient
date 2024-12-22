@@ -4,15 +4,15 @@ import json
 from enum import Enum
 from typing import Any, Union
 
+import html2text
 import requests
+from bs4 import BeautifulSoup
 
 from src.api import Base
 from src.utils import UA
 
 from .config import GLOBAL_CONFIG
 
-from bs4 import BeautifulSoup
-import html2text
 
 class ArticleType(Enum):
     RECENT = 'recent'
@@ -55,7 +55,7 @@ class Article(object):
 class ArticleAPI(Base):
     def __init__(self):
         super().__init__()
-        self.articles: List[dict] = []
+        self.articles: list[dict] = []
 
     def vote_for_article(self, article_id: str) -> None:
         if self.api_key == '':
@@ -87,6 +87,19 @@ class ArticleAPI(Base):
         else:
             print('感谢文章失败: ' + response['msg'])
 
+    def list_user_articles(self, username: str, page: int = 1, size: int = 20) -> dict:
+        if page < 1:
+            page = 1
+        res = requests.get(
+            f'{GLOBAL_CONFIG.host}/api/user/{username}/articles?p={page}&size={size}', headers={'User-Agent': UA}, json={
+                'apiKey': self.api_key
+            })
+        response = json.loads(res.text)
+        if 'code' in response and response['code'] == 0:
+            return response["data"]["articles"]
+        else:
+            print('获取帖子列表失败: ' + response['msg'])
+
     def list_articles(self, type: ArticleType = ArticleType.RECENT, page: int = 1, size: int = 20) -> dict:
         res = requests.get(
             f'{GLOBAL_CONFIG.host}/api/articles/{type.value}?p={page}&size={size}', headers={'User-Agent': UA}, json={
@@ -117,10 +130,13 @@ class ArticleAPI(Base):
         reset_color = '\033[0m'
 
         for index, article in enumerate(article_list):
-            author_name = article["articleAuthor"].get("userNickname", "") or article["articleAuthor"]["userName"]
+            author_name = article["articleAuthor"].get(
+                "userNickname", "") or article["articleAuthor"]["userName"]
             colored_name = f'{grey_highlight}{author_name}{reset_color}'
-            colored_comments = f'{green_bold}{article["articleCommentCount"]}{reset_color}'
-            formatted_article = f'{str(index + 1).zfill(2)}.[{colored_name}] {article["articleTitle"]} {colored_comments}'
+            colored_comments = f'{green_bold}{
+                article["articleCommentCount"]}{reset_color}'
+            formatted_article = f'{str(
+                index + 1).zfill(2)}.[{colored_name}] {article["articleTitle"]} {colored_comments}'
             print(formatted_article)
 
     def comment_article(self, article_id: str, comment: str) -> Article:
@@ -144,15 +160,20 @@ class ArticleAPI(Base):
 
         print(f"{yellow}[{'*' * 60} (评论区) {'*' * 60}]{reset_color}\n")
         for index, commenter in enumerate(comments_list):
-            comment_name = commenter["commenter"].get("userNickname", "") or commenter["commenter"]["userName"]
+            comment_name = commenter["commenter"].get(
+                "userNickname", "") or commenter["commenter"]["userName"]
             soup = BeautifulSoup(commenter["commentContent"], 'html.parser')
             text_maker = html2text.HTML2Text()
             text = text_maker.handle(str(soup))
-            print(f"{str(index + 1).zfill(2)}.{green_bold}[{comment_name}({commenter['commenter']['userName']})]{reset_color}:{text}")
+            print(f"{str(index + 1).zfill(2)}.{green_bold}[{comment_name}({
+                  commenter['commenter']['userName']})]{reset_color}:{text}")
         print(f'{yellow}{"*" * 120}{reset_color}')
+
+    def get_article_oid(self, articles: list[dict], index: int) -> str:
+        return articles[index - 1]["oId"]
 
     def articles_oid(self, index: int = None) -> Union[list[str], str]:
         if index is None:
             return [oid["oId"] for oid in self.articles]
         else:
-            return self.articles[index - 1]["oId"]
+            return self.get_article_oid(self.articles, index)

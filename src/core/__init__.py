@@ -95,7 +95,7 @@ def _login_with_key(api: FishPi) -> None:
     if username is not None:
         GLOBAL_CONFIG.auth_config.username = username
         api.set_token(GLOBAL_CONFIG.auth_config.key)
-        api.current_user = username
+        api.set_current_user(GLOBAL_CONFIG.auth_config.username)
     else:
         print("非法API-KEY, 使用账户密码登陆")
         while len(GLOBAL_CONFIG.auth_config.username) == 0:
