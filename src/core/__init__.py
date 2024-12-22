@@ -132,7 +132,6 @@ class LoginInitor(Initor):
                 account[0], account[1], '') for account in GLOBAL_CONFIG.auth_config.accounts}
         api.sockpuppets[api.current_user] = UserInfo(
             api.current_user, GLOBAL_CONFIG.auth_config.password, api.api_key)
-        api.get_current_user().in_chatroom = True
         User().online(api.sockpuppets[api.current_user])
 
 
@@ -141,6 +140,7 @@ class ChaRoomInitor(Initor):
         init_soliloquize(api)
         if GLOBAL_CONFIG.chat_config.soliloquize_switch:
             schedule.run_pending()
+        api.get_current_user().in_chatroom = True
         chatroom = ChatRoom()
         chatroom.start()
 
