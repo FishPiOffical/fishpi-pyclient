@@ -8,7 +8,7 @@ from typing import Any
 import schedule
 from colorama import just_fix_windows_console
 
-from src.api import FishPi, UserInfo
+from src.api import FishPi, UserInfo, bolo
 from src.api.config import (
     GLOBAL_CONFIG,
     ChatConfig,
@@ -16,7 +16,7 @@ from src.api.config import (
     RedPacketConfig,
     init_defualt_config,
 )
-from src.utils import HOST, cli_login
+from src.utils import HOST, HOST_RE, cli_login
 
 from .chatroom import ChatRoom, init_soliloquize
 from .command import init_cli
@@ -49,6 +49,7 @@ class DefualtConfigInitor(Initor):
         GLOBAL_CONFIG.auth_config = defualt.auth_config
         GLOBAL_CONFIG.redpacket_config = defualt.redpacket_config
         GLOBAL_CONFIG.chat_config = defualt.chat_config
+        GLOBAL_CONFIG.bolo_config = defualt.bolo_config
         GLOBAL_CONFIG.cfg_path = defualt.cfg_path
         GLOBAL_CONFIG.host = defualt.host
 
@@ -60,6 +61,14 @@ class EnvConfigInitor(Initor):
         GLOBAL_CONFIG.auth_config.password = os.environ.get(
             "FISH_PI_PASSWORD", '')
         GLOBAL_CONFIG.auth_config.key = os.environ.get('FISH_PI_KEY', '')
+        GLOBAL_CONFIG.bolo_config.username = os.environ.get(
+            "BOLO_USERNAME", '')
+        GLOBAL_CONFIG.bolo_config.password = os.environ.get(
+            "BOLO_PASSWORD", '')
+        GLOBAL_CONFIG.bolo_config.cookie = os.environ.get(
+            "BOLO_COOKIE", '')
+        GLOBAL_CONFIG.bolo_config.host = os.environ.get(
+            "BOLO_HOST", '')
 
 
 class FileConfigInitor(Initor):
@@ -75,6 +84,7 @@ class FileConfigInitor(Initor):
             else:
                 config.read(file_path, encoding='utf-8')
                 init_auth_config(config)
+                init_bolo_config(config)
                 GLOBAL_CONFIG.redpacket_config = int_redpacket_config(config)
                 GLOBAL_CONFIG.chat_config = init_chat_config(config)
                 GLOBAL_CONFIG.cfg_path = file_path
@@ -143,6 +153,13 @@ class LoginInitor(Initor):
         User().online(api.sockpuppets[api.current_user])
 
 
+class BoloLoginInitor(Initor):
+    def exec(self, api: FishPi, options: CliOptions) -> None:
+        if GLOBAL_CONFIG.bolo_config.cookie == '' and (GLOBAL_CONFIG.bolo_config.username != '' and GLOBAL_CONFIG.bolo_config.password != ''):
+            # try login bolo
+            bolo.bolo_login()
+
+
 class ChaRoomInitor(Initor):
     def exec(self, api: FishPi, options: CliOptions) -> None:
         init_soliloquize(api)
@@ -185,6 +202,7 @@ class InitChain(object):
                     FileConfigInitor(),
                     CilConfigInitor(),
                     LoginInitor(),
+                    BoloLoginInitor(),
                     ChaRoomInitor(),
                     CliInitor())
         self.head.init(self.api, self.options)
@@ -268,8 +286,7 @@ def init_userinfo_with_options(options: CliOptions) -> None:
         GLOBAL_CONFIG.auth_config.password = options.password
     GLOBAL_CONFIG.auth_config.mfa_code = options.code
     if options.host is not None:
-        pattern = re.compile(r'^https?://')
-        if pattern.match(options.host):
+        if HOST_RE.match(options.host):
             GLOBAL_CONFIG.host = options.host
         else:
             GLOBAL_CONFIG.host = 'https://' + options.host
@@ -319,13 +336,44 @@ def init_host_config(config: ConfigParser) -> str:
         host = config.get('auth', 'host')
         if host is None:
             return HOST
-        pattern = re.compile(r'^https?://')
-        if pattern.match(host):
+        if HOST_RE.match(host):
             return host
         else:
             return 'https://' + host
     except NoOptionError:
         return HOST
+
+
+def init_bolo_config(config: ConfigParser) -> None:
+    try:
+        if len(config.get('bolo', 'username')) != 0:
+            GLOBAL_CONFIG.bolo_config.username = ''
+            GLOBAL_CONFIG.bolo_config.password = ''
+            GLOBAL_CONFIG.bolo_config.cookie = ''
+            GLOBAL_CONFIG.bolo_config.username = config.get('bolo', 'username')
+    except NoOptionError:
+        pass
+    try:
+        if len(config.get('bolo', 'password')) != 0:
+            GLOBAL_CONFIG.bolo_config.password = config.get('bolo', 'password')
+    except NoOptionError:
+        pass
+    try:
+        if len(config.get('bolo', 'cookie')) != 0:
+            GLOBAL_CONFIG.bolo_config.cookie = config.get('bolo', 'cookie')
+    except NoOptionError:
+        pass
+    try:
+        if len(config.get('bolo', 'host')) != 0:
+            host = config.get('bolo', 'host')
+            if host is None:
+                return
+            if HOST_RE.match(host):
+                GLOBAL_CONFIG.bolo_config.host = host
+            else:
+                GLOBAL_CONFIG.bolo_config.host = 'http://' + host
+    except NoOptionError:
+        pass
 
 
 FishPiInitor = InitChain()

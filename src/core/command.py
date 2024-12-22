@@ -7,7 +7,7 @@ from typing import Tuple
 
 from objprint import op
 
-from src.api import FishPi, UserInfo
+from src.api import FishPi, UserInfo, bolo
 from src.api.article import Article
 from src.api.config import GLOBAL_CONFIG, Config, init_defualt_config
 from src.api.redpacket import RedPacket, RedPacketType, RPSRedPacket, SpecifyRedPacket
@@ -292,7 +292,28 @@ class GetUserInfoCommand(Command):
             render_user_info(userInfo)
 
 
+class PushCommand(Command):
+    def exec(self, api: FishPi, args: Tuple[str, ...]):
+        params = [i for i in args]
+        if len(params) != 2 or params[0] != 'article':
+            print('非法指令 #push article {index}')
+            return
+        else:
+            # push to bolo
+            index = len(params[1])
+            articles = CLIInvoker.commands['#me'].articles
+            if len(articles) == 0:
+                print('你没有可用的文章可以推送')
+                return
+            bolo.push_article(api.article.get_article(
+                api.article.get_article_oid(articles, index)))
+
+
 class ShowMeCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.articles: list[dict] = []
+
     def exec(self, api: FishPi, args: Tuple[str, ...]):
         params = [i for i in args]
         if params == []:
@@ -480,12 +501,13 @@ class OutputPathComand(Command):
 
 
 class CLIInvoker:
+    commands = {}
+
     def __init__(self, api):
         self.api = api
-        self.commands = {}
 
     def add_command(self, command_name, command):
-        self.commands[command_name] = command
+        CLIInvoker.commands[command_name] = command
 
     def run(self):
         while True:
@@ -495,7 +517,7 @@ class CLIInvoker:
                 DefaultCommand().exec(self.api, tuple(params))
             else:
                 args = tuple(params[1:])
-                command = self.commands.get(params[0], DefaultCommand())
+                command = CLIInvoker.commands.get(params[0], DefaultCommand())
                 if isinstance(command, DefaultCommand):
                     args = tuple(params)
                 command.exec(self.api, args)
@@ -521,6 +543,7 @@ def init_cli(api: FishPi):
     cli_handler.add_command('#revoke', RevokeMessageCommand())
     cli_handler.add_command('#liveness', GetLivenessCommand())
     cli_handler.add_command('#point', GetPointCommand())
+    cli_handler.add_command('#push', PushCommand())
     cli_handler.add_command('#me', ShowMeCommand())
     cli_handler.add_command('#account', ShowSockpuppetCommand())
     cli_handler.add_command('#su', ChangeCurrentUserCommand())

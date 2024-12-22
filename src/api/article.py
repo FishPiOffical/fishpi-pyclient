@@ -87,7 +87,7 @@ class ArticleAPI(Base):
         else:
             print('感谢文章失败: ' + response['msg'])
 
-    def list_user_articles(self, username: str, page: int = 1, size: int = 20) -> dict:
+    def list_user_articles(self, username: str, page: int = 1, size: int = 20) -> list[dict]:
         if page < 1:
             page = 1
         res = requests.get(
@@ -100,7 +100,7 @@ class ArticleAPI(Base):
         else:
             print('获取帖子列表失败: ' + response['msg'])
 
-    def list_articles(self, type: ArticleType = ArticleType.RECENT, page: int = 1, size: int = 20) -> dict:
+    def list_articles(self, type: ArticleType = ArticleType.RECENT, page: int = 1, size: int = 20) -> list[dict]:
         res = requests.get(
             f'{GLOBAL_CONFIG.host}/api/articles/{type.value}?p={page}&size={size}', headers={'User-Agent': UA}, json={
                 'apiKey': self.api_key

@@ -29,6 +29,23 @@ class RedPacketConfig(object):
         }
 
 
+class BoloConfig(object):
+
+    def __init__(self, host: str, username: str, password: str):
+        self.host = host
+        self.username = username
+        self.password = password
+        self.cookie = ''
+
+    def to_config(self) -> dict:
+        return {
+            'host': self.host,
+            'username': self.username,
+            'password': self.password,
+            'cookie': self.cookie,
+        }
+
+
 class AuthConfig(object):
     def __init__(self, username='', password='', mfa_code='', key=''):
         self.username = username
@@ -101,10 +118,11 @@ class ChatConfig(object):
 
 
 class Config(object):
-    def __init__(self, auth: AuthConfig = None, redpacket: RedPacketConfig = None, chat: ChatConfig = None, cfg_path: str = None, host: str = 'https://fishpi.cn'):
+    def __init__(self, auth: AuthConfig = None, redpacket: RedPacketConfig = None, chat: ChatConfig = None, bolo: BoloConfig = None, cfg_path: str = None, host: str = 'https://fishpi.cn'):
         self.auth_config = auth
         self.redpacket_config = redpacket
         self.chat_config = chat
+        self.bolo_config = bolo
         self.cfg_path = cfg_path
         self.host = host
 
@@ -113,6 +131,7 @@ class Config(object):
         config['auth'] = self.auth_config.to_config()
         config['redPacket'] = self.redpacket_config.to_config()
         config['chat'] = self.chat_config.to_config()
+        config['bolo'] = self.bolo_config.to_config()
         return config
 
 
@@ -126,7 +145,7 @@ class CliOptions(object):
 
 
 def init_defualt_config() -> Config:
-    return Config(AuthConfig(), RedPacketConfig(), ChatConfig(), None, HOST)
+    return Config(AuthConfig(), RedPacketConfig(), ChatConfig(), BoloConfig('', '', ''), None, HOST)
 
 
 GLOBAL_CONFIG = Config()
