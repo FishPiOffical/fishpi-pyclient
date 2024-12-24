@@ -11,10 +11,10 @@ import websocket
 from prettytable import PrettyTable
 from termcolor import colored
 
-from src.api import API, FishPi
-from src.api.config import GLOBAL_CONFIG
 from src.api.enum import NTYPE
-from src.api.ws import WS
+from src.config import GLOBAL_CONFIG
+from src.core.fishpi import API, FishPi
+from src.core.ws import WS
 
 from .notification import Event, sender, sys_notification
 from .redpacket import render_redpacket, rush_redpacket

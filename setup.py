@@ -98,7 +98,8 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=['src', 'src/api', 'src/core', 'src/utils'],
+    packages=['src', 'src/api', 'src/core',
+              'src/utils', 'src/config', 'src/core/initor'],
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
 

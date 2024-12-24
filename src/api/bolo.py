@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 
-from src.api.config import GLOBAL_CONFIG
+from src.config import GLOBAL_CONFIG
 from src.utils import UA
 
 

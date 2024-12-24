@@ -7,9 +7,8 @@ import re
 
 import requests
 
+from src.config import GLOBAL_CONFIG
 from src.utils import HELP, UA
-
-from .config import GLOBAL_CONFIG
 
 
 class Base(object):

@@ -2,8 +2,8 @@
 
 import re
 
-from src.api import FishPi
-from src.api.config import GLOBAL_CONFIG
+from src.config import GLOBAL_CONFIG
+from src.core.fishpi import FishPi
 
 
 def release_someone(api: FishPi, username: str) -> None:

@@ -5,9 +5,9 @@ import signal
 import click
 import schedule
 
-from src.api import API
-from src.api.config import CliOptions
-from src.core import FishPiInitor
+from src.config import CliOptions
+from src.core.fishpi import API
+from src.core.initor.init_chan import FishPiInitor
 from src.utils.version import __version__
 
 

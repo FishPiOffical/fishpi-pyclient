@@ -3,9 +3,9 @@
 import json
 import time
 
-from src.api import FishPi
-from src.api.config import GLOBAL_CONFIG
 from src.api.enum import CODE
+from src.config import GLOBAL_CONFIG
+from src.core.fishpi import FishPi
 from src.utils import RPS_LOSED, RPS_SUCCESS, RPS_ZERO
 
 

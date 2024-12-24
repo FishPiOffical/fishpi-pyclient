@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 import websocket
 
-from src.api import API
+from src.core.fishpi import API
 
 
 class WS(ABC):

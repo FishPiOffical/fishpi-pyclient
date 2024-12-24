@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from src.api import FishPi, UserInfo
 from src.api.enum import NTYPE
-from src.api.ws import WS
-
-from .notification import Event, sender, sys_notification
+from src.core.fishpi import FishPi, UserInfo
+from src.core.notification import Event, sender, sys_notification
+from src.core.ws import WS
 
 
 class User(WS):

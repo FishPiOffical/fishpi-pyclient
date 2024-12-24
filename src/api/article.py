@@ -8,10 +8,9 @@ import html2text
 import requests
 from bs4 import BeautifulSoup
 
-from src.api import Base
+from src.api.base import Base
+from src.config import GLOBAL_CONFIG
 from src.utils import UA
-
-from .config import GLOBAL_CONFIG
 
 
 class ArticleType(Enum):

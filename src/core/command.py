@@ -7,10 +7,11 @@ from typing import Tuple
 
 from objprint import op
 
-from src.api import FishPi, UserInfo, bolo
+from src.api import bolo
 from src.api.article import Article
-from src.api.config import GLOBAL_CONFIG, Config, init_defualt_config
 from src.api.redpacket import RedPacket, RedPacketType, RPSRedPacket, SpecifyRedPacket
+from src.config import GLOBAL_CONFIG, Config, init_defualt_config
+from src.core.fishpi import FishPi, UserInfo
 from src.utils import (
     COMMAND_GUIDE,
     OUTPUT_RE,
@@ -31,6 +32,29 @@ from .chat import Chat
 from .chatroom import ChatRoom
 from .notification import put_keyword_to_nitification, remove_keyword_to_nitification
 from .user import User, render_online_users, render_user_info
+
+
+class CLIInvoker:
+    commands = {}
+
+    def __init__(self, api):
+        self.api = api
+
+    def add_command(self, command_name, command):
+        CLIInvoker.commands[command_name] = command
+
+    def run(self):
+        while True:
+            msg = input("")
+            params = msg.split(' ')
+            if len(params) < 2 and not msg.startswith('#'):
+                DefaultCommand().exec(self.api, tuple(params))
+            else:
+                args = tuple(params[1:])
+                command = CLIInvoker.commands.get(params[0], DefaultCommand())
+                if isinstance(command, DefaultCommand):
+                    args = tuple(params)
+                command.exec(self.api, args)
 
 
 class Command(ABC):
@@ -498,29 +522,6 @@ class OutputPathComand(Command):
         GLOBAL_CONFIG.chat_config.output_path = path
         print(f"文件输出路径已设置为{path}")
         api.opPath_write_to_config_file(path)
-
-
-class CLIInvoker:
-    commands = {}
-
-    def __init__(self, api):
-        self.api = api
-
-    def add_command(self, command_name, command):
-        CLIInvoker.commands[command_name] = command
-
-    def run(self):
-        while True:
-            msg = input("")
-            params = msg.split(' ')
-            if len(params) < 2 and not msg.startswith('#'):
-                DefaultCommand().exec(self.api, tuple(params))
-            else:
-                args = tuple(params[1:])
-                command = CLIInvoker.commands.get(params[0], DefaultCommand())
-                if isinstance(command, DefaultCommand):
-                    args = tuple(params)
-                command.exec(self.api, args)
 
 
 def init_cli(api: FishPi):

@@ -4,12 +4,11 @@ import random
 
 import requests
 
-from src.api import Base
+from src.api.base import Base
 from src.api.redpacket import RedPacket, RedPacketType
+from src.config import GLOBAL_CONFIG
 from src.utils import UA
 from src.utils.version import __version__
-
-from .config import GLOBAL_CONFIG
 
 
 class ChatRoomAPI(Base):

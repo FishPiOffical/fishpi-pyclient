@@ -3,10 +3,9 @@ import json
 
 import requests
 
+from src.api.base import Base
+from src.config import GLOBAL_CONFIG
 from src.utils import UA
-
-from .base import Base
-from .config import GLOBAL_CONFIG
 
 
 class ChatAPI(Base):

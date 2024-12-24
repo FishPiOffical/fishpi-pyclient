@@ -4,10 +4,9 @@ import json
 
 import requests
 
-from src.api import Base
+from src.api.base import Base
+from src.config import GLOBAL_CONFIG
 from src.utils import UA
-
-from .config import GLOBAL_CONFIG
 
 
 class UserAPI(Base):

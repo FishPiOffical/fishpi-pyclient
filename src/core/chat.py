@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from src.api import API
-from src.api.ws import WS
+from src.core.fishpi import API
+from src.core.ws import WS
 
 
 class Chat(WS):

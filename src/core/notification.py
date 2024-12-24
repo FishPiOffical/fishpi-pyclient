@@ -4,8 +4,8 @@ from abc import ABC
 
 from plyer import notification
 
-from src.api.config import GLOBAL_CONFIG
 from src.api.enum import NTYPE
+from src.config import GLOBAL_CONFIG
 from src.utils.file import project_root
 
 
