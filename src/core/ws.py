@@ -10,6 +10,13 @@ import websocket
 from src.core.fishpi import API
 
 
+def set_url(url):
+    def decorate(cls):
+        cls.WS_URL = url
+        return cls
+    return decorate
+
+
 class WS(ABC):
     def __init__(self, ws_url: str, ws_calls: list[str]) -> None:
         self.ws_url = ws_url

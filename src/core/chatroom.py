@@ -14,7 +14,7 @@ from termcolor import colored
 from src.api.enum import NTYPE
 from src.config import GLOBAL_CONFIG
 from src.core.fishpi import API, FishPi
-from src.core.ws import WS
+from src.core.ws import WS, set_url
 
 from .notification import Event, sender, sys_notification
 from .redpacket import render_redpacket, rush_redpacket
@@ -128,9 +128,8 @@ def appendToFile(message: str) -> None:
         f.write(message + '\n')
 
 
+@set_url(url='fishpi.cn/chat-room-channel')
 class ChatRoom(WS):
-    WS_URL = 'fishpi.cn/chat-room-channel'
-
     def __init__(self) -> None:
         super().__init__(ChatRoom.WS_URL, [render, render_redpacket])
 

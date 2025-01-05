@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from src.core.fishpi import API
-from src.core.ws import WS
+from src.core.ws import WS, set_url
 
 
+@set_url(url='fishpi.cn/chat-channel')
 class Chat(WS):
-    WS_URL = 'fishpi.cn/chat-channel'
 
     def __init__(self, to: str) -> None:
         self.params = {'toUser': to}

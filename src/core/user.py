@@ -3,11 +3,11 @@
 from src.api.enum import NTYPE
 from src.core.fishpi import FishPi, UserInfo
 from src.core.notification import Event, sender, sys_notification
-from src.core.ws import WS
+from src.core.ws import WS, set_url
 
 
+@set_url(url='fishpi.cn/user-channel')
 class User(WS):
-    WS_URL = 'fishpi.cn/user-channel'
 
     def __init__(self) -> None:
         super().__init__(User.WS_URL, [chat_notification])
