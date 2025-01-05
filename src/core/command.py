@@ -363,8 +363,11 @@ class ShowMeCommand(Command):
                 self.articles = api.article.list_user_articles(
                     api.current_user, int(params[2]))
                 api.article.format_article_list(self.articles)
+            elif params[0] == '-d':
+                print('当前用户')
+                op(api.get_current_user())
             else:
-                print('指令错误 #me (article) (view | page) {int}')
+                print('指令错误 #me (article| -d) (view | page) {int}')
 
 
 class ShowSockpuppetCommand(Command):

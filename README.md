@@ -91,7 +91,7 @@
 [#point] 查看当前个人积分
 [#online-users] 查看当前在线的用户列表
 [#user username] 输入 #user 用户名 可查看此用户详细信息 (#user Gakkiyomi)
-[#me] 查看当前在线账号 #me  #me article (view | page){index} 查看自己的帖子
+[#me] 查看当前在线账号 #me (-d)  #me article (view | page){index} 查看自己的帖子
 [#push] 推送帖子 #push article {index} 文章索引号
 [#account] 查看分身账号
 [#su] 账号切换 #su Gakkiyomi
