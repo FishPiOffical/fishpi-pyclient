@@ -20,7 +20,7 @@ DESCRIPTION = '摸鱼派聊天室python客户端'
 URL = 'https://github.com/gakkiyomi/fishpi-pyclient'
 EMAIL = 'gakkiyomi@gmail.com'
 AUTHOR = 'gakkiyomi'
-REQUIRES_PYTHON = '>=3.9'
+REQUIRES_PYTHON = '>=3.11'
 VERSION = __version__
 
 # What packages are required for this module to be executed?
@@ -118,7 +118,7 @@ setup(
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
