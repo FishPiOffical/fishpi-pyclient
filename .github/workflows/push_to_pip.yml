@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       # 新增 Docker 镜像构建和推送步骤
       - name: Log in to Docker Registry
         uses: docker/login-action@v3
@@ -29,9 +32,6 @@ jobs:
             gakkiyomi/fishpi-pyclient:latest
           labels: |
             org.opencontainers.image.version=${{ github.event.release.tag_name }}
-            
-      - name: Checkout code
-        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v3
