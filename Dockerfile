@@ -1,5 +1,5 @@
 
-FROM python:3.11-alpine
+FROM python:3.12-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ RUN apk add --no-cache \
 ENV TZ=Asia/Shanghai
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 
-COPY src/ .src/
+COPY src/ src/
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
