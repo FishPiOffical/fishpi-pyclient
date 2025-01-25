@@ -5,9 +5,13 @@
 > 摸鱼派聊天室 python 命令行客户端
 
 基于摸鱼打工人社区——摸鱼派开放 API 开发的摸鱼派聊天室 python 客户端程序，可以在里面边写 Bug 边愉快地吹水摸鱼。
-
+全平台客户端支持，支持一键docker部署。
 ## 功能
-
+- 全平台支持
+  - [x] Windows
+  - [x] macOS
+  - [x] linux
+  - [x] docker
 - 🥷 账号多开
   - 一键切换
   - 记住密码
@@ -126,6 +130,21 @@
 
 然后需要在偏好设置这里,如下图:
 ![WechatIMG482.jpg](https://file.fishpi.cn/2023/12/WechatIMG482-3c599a0e.jpg)
+
+### linux 系统
+可以使用pip进行安装或者通过docker进行使用
+#### docker
+~~~bash
+docker pull gakkiyomi/fishpi-pyclient:v2.1.9
+~~~
+交互模式进行聊天
+~~~bash
+docker run -it gakkiyomi/fishpi-pyclient:v2.1.9 -u username -p password -c <两步验证码>
+~~~
+后台红包机器人
+~~~bash
+docker run -d gakkiyomi/fishpi-pyclient:v2.1.9 -u username -p password -c <两步验证码>
+~~~
 
 ### pip 安装
 
