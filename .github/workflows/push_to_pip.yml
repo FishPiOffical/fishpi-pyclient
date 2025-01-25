@@ -1,5 +1,5 @@
 ---
-name: Push to PyPI
+name: Push to docker and PyPI
 
 on:
   release:
@@ -11,6 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 新增 Docker 镜像构建和推送步骤
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            gakkiyomi/fishpi-pyclient:${{ github.event.release.tag_name }}
+            gakkiyomi/fishpi-pyclient:latest
+          labels: |
+            org.opencontainers.image.version=${{ github.event.release.tag_name }}
+            
       - name: Checkout code
         uses: actions/checkout@v3
 

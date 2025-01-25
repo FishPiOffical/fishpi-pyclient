@@ -148,7 +148,7 @@ docker run -d gakkiyomi/fishpi-pyclient:v2.1.9 -u username -p password -c <两�
 
 ### pip 安装
 
-环境: Python3.11 以上
+环境: Python3.12 以上
 
 执行
 
