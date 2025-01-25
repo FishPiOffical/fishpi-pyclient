@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.github
+.gitignore
+Dockerfile
+README.md
+build/
+LICENSE
+fishpi_pyclient.egg-info/
+.venv
