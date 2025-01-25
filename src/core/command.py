@@ -4,7 +4,7 @@ import re
 from abc import ABC, abstractmethod
 from functools import partial
 from typing import Tuple
-
+import sys
 from objprint import op
 
 from src.api import bolo
@@ -45,16 +45,20 @@ class CLIInvoker:
 
     def run(self):
         while True:
-            msg = input("")
-            params = msg.split(' ')
-            if len(params) < 2 and not msg.startswith('#'):
-                DefaultCommand().exec(self.api, tuple(params))
+            if sys.stdin.isatty():
+                msg = input("")
+                params = msg.split(' ')
+                if len(params) < 2 and not msg.startswith('#'):
+                    DefaultCommand().exec(self.api, tuple(params))
+                else:
+                    args = tuple(params[1:])
+                    command = CLIInvoker.commands.get(
+                        params[0], DefaultCommand())
+                    if isinstance(command, DefaultCommand):
+                        args = tuple(params)
+                    command.exec(self.api, args)
             else:
-                args = tuple(params[1:])
-                command = CLIInvoker.commands.get(params[0], DefaultCommand())
-                if isinstance(command, DefaultCommand):
-                    args = tuple(params)
-                command.exec(self.api, args)
+                pass
 
 
 class Command(ABC):
