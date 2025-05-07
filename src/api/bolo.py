@@ -5,16 +5,21 @@ from src.config import GLOBAL_CONFIG
 from src.utils import UA
 
 
-def bolo_login() -> None:
-    res = requests.post(f'{GLOBAL_CONFIG.bolo_config.host}/oauth/bolo/login', headers={'User-Agent': UA}, data={
+def __login_req() -> requests.Response:
+    return requests.post(f'{GLOBAL_CONFIG.bolo_config.host}/oauth/bolo/login', headers={'User-Agent': UA}, data={
         'username': GLOBAL_CONFIG.bolo_config.username,
         'password': GLOBAL_CONFIG.bolo_config.password
     })
+
+
+def bolo_login() -> None:
+    res = __login_req()
     if res.status_code != 200:
         print(f'登陆bolo失败: 请重新登陆 {res.text}')
         GLOBAL_CONFIG.bolo_config.username = ''
         GLOBAL_CONFIG.bolo_config.password = ''
         return
+
     GLOBAL_CONFIG.bolo_config.cookie = res.headers['Set-Cookie']
     print(f'bolo登陆成功 {GLOBAL_CONFIG.bolo_config.host} 用户 {
           GLOBAL_CONFIG.bolo_config.username}')

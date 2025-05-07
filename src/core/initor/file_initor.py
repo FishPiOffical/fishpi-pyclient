@@ -157,7 +157,7 @@ def init_bolo_config(config: ConfigParser) -> None:
             if HOST_RE.match(host):
                 GLOBAL_CONFIG.bolo_config.host = host
             else:
-                GLOBAL_CONFIG.bolo_config.host = 'http://' + host
+                GLOBAL_CONFIG.bolo_config.host = 'https://' + host
     except NoOptionError:
         pass
 
