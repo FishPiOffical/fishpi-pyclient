@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import re
+import sys
 from abc import ABC, abstractmethod
 from functools import partial
 from typing import Tuple
-import sys
+
 from objprint import op
 
 from src.api import bolo
@@ -328,7 +329,7 @@ class PushCommand(Command):
             return
         else:
             # push to bolo
-            index = len(params[1])
+            index = int(params[1])
             articles = CLIInvoker.commands['#me'].articles
             if len(articles) == 0:
                 print('你没有可用的文章可以推送')
